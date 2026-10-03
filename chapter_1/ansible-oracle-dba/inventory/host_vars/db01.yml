@@ -1,0 +1,8 @@
+---
+# host_vars/db01.yml
+oracle_sid: ORCL1
+node_number: 1
+instance_role: primary_node_1
+is_rac_member: true
+db_unique_name: ORCL_LAB
+vip_ip: 192.168.1.111

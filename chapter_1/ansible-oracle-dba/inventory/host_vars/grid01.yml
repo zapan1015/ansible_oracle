@@ -1,0 +1,7 @@
+---
+# host_vars/grid01.yml
+oracle_sid: +ASM1
+node_number: 1
+is_rac_member: false
+grid_role: cluster_infrastructure_manager
+asm_diskgroup_count: 2

@@ -2,9 +2,12 @@
 # ========================================================
 # Playbook: 02_setup_oracle_env.yml
 # Description: Chapter 1 Master Project - Setup Oracle & Grid Base Directories
-# Targets: all (db01, db02, grid01)
 # ========================================================
-- name: Setup Oracle 19c Environment on Managed Nodes
+
+# --------------------------------------------------------
+# 1. 모든 노드: Oracle Base 및 Inventory 공통 디렉터리 생성
+# --------------------------------------------------------
+- name: Setup Common Oracle Base & Inventory Directories
   hosts: all
   become: yes
   gather_facts: no
@@ -26,29 +29,71 @@
         group: oinstall
         mode: '0770'
 
-    - name: Create Oracle 19c product home directory on DB servers
+    - name: Verify Oracle Base directory exists
+      ansible.builtin.command: ls -ld {{ oracle_base }}
+      register: oracle_base_check
+      changed_when: false
+
+    - name: Display Oracle Base status
+      ansible.builtin.debug:
+        msg: "[{{ inventory_hostname }}] Oracle Base: {{ oracle_base_check.stdout }}"
+
+# --------------------------------------------------------
+# 2. DB 서버 (db01, db02): Oracle Database 19c Home 생성
+# --------------------------------------------------------
+- name: Setup Oracle Database 19c Product Home on DB Nodes
+  hosts: db_servers
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Create Oracle 19c product home directory
       ansible.builtin.file:
         path: "{{ oracle_home }}"
         state: directory
-        owner: oracle
+        owner: "{{ oracle_user | default('oracle') }}"
         group: oinstall
         mode: '0755'
-      when: "'db_servers' in group_names"
 
-    - name: Create Oracle 19c Grid home directory on Grid servers
+    - name: Create Fast Recovery Area directory
       ansible.builtin.file:
-        path: "{{ grid_home }}"
+        path: "{{ db_recovery_file_dest | default('/u01/app/oracle/fast_recovery_area') }}"
         state: directory
-        owner: grid
+        owner: "{{ oracle_user | default('oracle') }}"
         group: oinstall
-        mode: '0775'
-      when: "'grid_servers' in group_names"
+        mode: '0755'
 
-    - name: Verify Oracle base directory permissions and existence
-      ansible.builtin.command: ls -ld {{ oracle_base }}
+    - name: Verify Oracle Home directory
+      ansible.builtin.command: ls -ld {{ oracle_home }}
       register: oracle_home_check
       changed_when: false
 
-    - name: Display Oracle Base directory details
+    - name: Display Oracle Home details
       ansible.builtin.debug:
-        msg: "[{{ inventory_hostname }}] Oracle Base: {{ oracle_home_check.stdout }}"
+        msg: "[{{ inventory_hostname }}] Oracle Home: {{ oracle_home_check.stdout }}"
+
+# --------------------------------------------------------
+# 3. Grid 서버 (grid01): Oracle Grid Infrastructure 19c Home 생성
+# --------------------------------------------------------
+- name: Setup Oracle Grid Infrastructure 19c Home on Grid Nodes
+  hosts: grid_servers
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Create Oracle 19c Grid home directory
+      ansible.builtin.file:
+        path: "{{ grid_home }}"
+        state: directory
+        owner: "{{ grid_user | default('grid') }}"
+        group: oinstall
+        mode: '0775'
+
+    - name: Verify Grid Home directory
+      ansible.builtin.command: ls -ld {{ grid_home }}
+      register: grid_home_check
+      changed_when: false
+
+    - name: Display Grid Home details
+      ansible.builtin.debug:
+        msg: "[{{ inventory_hostname }}] Grid Home: {{ grid_home_check.stdout }}"

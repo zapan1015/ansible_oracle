@@ -65,6 +65,7 @@ docker compose ps
 ```bash
 docker exec -it ansible-control bash
 ```
+> 💡 **참고**: Windows 파일시스템 바인드 마운트 특성(World Writable Directory)으로 인해 컨테이너 환경 변수로 `ANSIBLE_CONFIG=/home/oracle/ansible-oracle-dba/ansible.cfg`가 기본 적용되어 있습니다.
 
 ### Step 3. Ansible 연결 확인 (애드혹 명령)
 제어 노드 내부(`/home/oracle/ansible-oracle-dba`)에서 실행합니다:

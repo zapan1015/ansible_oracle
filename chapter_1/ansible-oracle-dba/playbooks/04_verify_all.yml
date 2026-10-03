@@ -15,7 +15,7 @@
       changed_when: false
 
     - name: Verify SSH connectivity across nodes
-      ansible.builtin.command: hostname
+      ansible.builtin.command: uname -n
       register: host_name_cmd
       changed_when: false
 

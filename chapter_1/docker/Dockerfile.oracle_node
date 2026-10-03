@@ -21,6 +21,7 @@ RUN dnf install -y oracle-epel-release-el8 && \
         iproute \
         procps-ng \
         passwd \
+        hostname \
         bc && \
     dnf clean all && \
     rm -rf /var/cache/dnf

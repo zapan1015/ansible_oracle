@@ -1,0 +1,12 @@
+---
+# group_vars/all.yml
+# 공통 환경 변수 및 오라클 공통 경로
+oracle_group: oinstall
+dba_group: dba
+env: LAB_ORACLE_19C
+backup_dir: /backup/oracle
+admin_email: dba-team@example.com
+
+# 19c 디렉터리 권한 표준
+dir_mode: '0755'
+ora_inventory_group: oinstall

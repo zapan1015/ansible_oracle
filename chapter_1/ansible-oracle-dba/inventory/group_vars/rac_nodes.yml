@@ -1,0 +1,22 @@
+---
+# group_vars/rac_nodes.yml
+# Oracle 19c Real Application Clusters (RAC) 환경 변수
+scan_name: rac-scan.lab.local
+scan_port: 1521
+cluster_domain: lab.local
+
+rac_instances:
+  db01:
+    instance_name: ORCL1
+    thread: 1
+    vip_ip: 192.168.1.111
+    vip_name: db01-vip
+    priv_ip: 192.168.17.101
+    priv_name: db01-priv
+  db02:
+    instance_name: ORCL2
+    thread: 2
+    vip_ip: 192.168.1.112
+    vip_name: db02-vip
+    priv_ip: 192.168.17.102
+    priv_name: db02-priv

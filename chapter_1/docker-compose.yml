@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # -------------------------------------------------------------
   # 1. Ansible Control Node (제어 노드)
@@ -12,6 +10,8 @@ services:
     hostname: ansible-control
     user: oracle
     working_dir: /home/oracle/ansible-oracle-dba
+    environment:
+      - ANSIBLE_CONFIG=/home/oracle/ansible-oracle-dba/ansible.cfg
     volumes:
       - ./ansible-oracle-dba:/home/oracle/ansible-oracle-dba
       - shared-ssh-keys:/home/oracle/.ssh

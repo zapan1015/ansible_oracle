@@ -42,6 +42,8 @@ RUN groupadd -g 54321 oinstall && \
     chmod 0440 /etc/sudoers.d/oracle
 
 # 4. SSH 키 생성 및 환경 설정 (컨테이너 내부 실행용)
+ENV ANSIBLE_CONFIG=/home/oracle/ansible-oracle-dba/ansible.cfg
+
 USER oracle
 WORKDIR /home/oracle
 
@@ -49,7 +51,8 @@ RUN mkdir -p /home/oracle/.ssh /home/oracle/ansible-oracle-dba && \
     chmod 700 /home/oracle/.ssh && \
     ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N "" -q && \
     chmod 600 /home/oracle/.ssh/id_rsa && \
-    chmod 644 /home/oracle/.ssh/id_rsa.pub
+    chmod 644 /home/oracle/.ssh/id_rsa.pub && \
+    echo "export ANSIBLE_CONFIG=/home/oracle/ansible-oracle-dba/ansible.cfg" >> /home/oracle/.bashrc
 
 WORKDIR /home/oracle/ansible-oracle-dba
 

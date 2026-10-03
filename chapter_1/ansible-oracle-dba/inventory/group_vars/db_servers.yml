@@ -1,0 +1,13 @@
+---
+# group_vars/db_servers.yml
+# Oracle Database 19c 환경 변수
+oracle_version: "19.3.0"
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19.3.0/dbhome_1
+oracle_user: oracle
+oracle_group: oinstall
+oracle_port: 1521
+listener_name: LISTENER
+db_name: ORCL
+db_unique_name: ORCL_LAB
+db_recovery_file_dest: /u01/app/oracle/fast_recovery_area
