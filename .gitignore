@@ -1,0 +1,67 @@
+# ==========================================
+# Security & Credentials (.gitignore)
+# ==========================================
+
+# SSH Keys & Certificates
+*.pem
+*.key
+*.pkcs12
+*.pfx
+*.crt
+*.cer
+id_rsa
+id_rsa.pub
+id_dsa
+id_ecdsa
+id_ed25519
+*.pub
+
+# Ansible Vault & Passwords
+.vault_pass*
+*.vault
+*vault*.yml
+!*vault*.example.yml
+credentials.yml
+passwords.yml
+secrets.yml
+
+# Oracle Binaries, Installers, and Data Dumps
+*.zip
+*.tar.gz
+*.tgz
+*.iso
+*.rpm
+*.dmp
+*.dbf
+*.rdo
+*.arc
+*.ctl
+LINUX.X64_*
+V*.zip
+p*_*.zip
+
+# Docker & Container Runtime Data
+.env.local
+*.env.local
+asm_disks/
+nfs_share/
+docker_volumes/
+
+# Logs and Runtime Files
+*.log
+*.retry
+logs/*.log
+!logs/.gitkeep
+.ansible/
+__pycache__/
+*.pyc
+*.pyo
+
+# OS & Editor Metadata
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.idea/
+.vscode/
+*.swp
+*~

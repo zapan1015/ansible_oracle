@@ -1,0 +1,48 @@
+---
+# ========================================================
+# Playbook: 03_oracle_19c_precheck.yml
+# Description: Oracle 19c RAC Pre-installation & Environment Verification
+# Targets: database_servers (db01, db02, grid01)
+# ========================================================
+- name: Oracle 19c RAC Pre-installation Environment Check
+  hosts: database_servers
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: 1. Check OS Version and Distribution
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} runs {{ ansible_distribution }} {{ ansible_distribution_version }} (Kernel: {{ ansible_kernel }})"
+
+    - name: 2. Check oracle user and group membership
+      ansible.builtin.command: id oracle
+      register: id_oracle_result
+      changed_when: false
+
+    - name: 3. Check grid user and group membership (if exists)
+      ansible.builtin.command: id grid
+      register: id_grid_result
+      changed_when: false
+      failed_when: false
+
+    - name: 4. Check available disk space on /u01
+      ansible.builtin.command: df -h /u01
+      register: disk_u01_result
+      changed_when: false
+
+    - name: 5. Check memory and swap details
+      ansible.builtin.command: free -h
+      register: memory_result
+      changed_when: false
+
+    - name: 6. Display Pre-check Summary
+      ansible.builtin.debug:
+        msg:
+          - "================= [ {{ inventory_hostname }} Pre-Check Summary ] ================="
+          - "Oracle User: {{ id_oracle_result.stdout }}"
+          - "Grid User:   {{ id_grid_result.stdout | default('N/A') }}"
+          - "U01 Storage:"
+          - "{{ disk_u01_result.stdout }}"
+          - "Memory Stats:"
+          - "{{ memory_result.stdout }}"
+          - "=========================================================================="

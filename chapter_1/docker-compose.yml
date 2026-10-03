@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. Ansible Control Node (제어 노드)
+  # -------------------------------------------------------------
+  ansible-control:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.control
+    container_name: ansible-control
+    hostname: ansible-control
+    user: oracle
+    working_dir: /home/oracle/ansible-oracle-dba
+    volumes:
+      - ./ansible-oracle-dba:/home/oracle/ansible-oracle-dba
+      - shared-ssh-keys:/home/oracle/.ssh
+    networks:
+      ansible-net:
+        ipv4_address: 192.168.1.10
+    command: >
+      bash -c "
+        mkdir -p /home/oracle/.ssh &&
+        if [ ! -f /home/oracle/.ssh/id_rsa ]; then
+          ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N '' -q;
+          chmod 600 /home/oracle/.ssh/id_rsa;
+          chmod 644 /home/oracle/.ssh/id_rsa.pub;
+        fi;
+        echo 'Ansible Control Node is ready. Running background loop...';
+        tail -f /dev/null
+      "
+    depends_on:
+      - db01
+      - db02
+      - grid01
+
+  # -------------------------------------------------------------
+  # 2. Managed Node 1: db01 (Oracle 19c RAC Node 1)
+  # -------------------------------------------------------------
+  db01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: db01
+    hostname: db01
+    networks:
+      ansible-net:
+        ipv4_address: 192.168.1.101
+    volumes:
+      - shared-ssh-keys:/shared-keys:ro
+      - db01-u01:/u01
+    ports:
+      - "15211:1521"
+      - "2201:22"
+
+  # -------------------------------------------------------------
+  # 3. Managed Node 2: db02 (Oracle 19c RAC Node 2)
+  # -------------------------------------------------------------
+  db02:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: db02
+    hostname: db02
+    networks:
+      ansible-net:
+        ipv4_address: 192.168.1.102
+    volumes:
+      - shared-ssh-keys:/shared-keys:ro
+      - db02-u01:/u01
+    ports:
+      - "15212:1521"
+      - "2202:22"
+
+  # -------------------------------------------------------------
+  # 4. Managed Node 3: grid01 (Oracle 19c Grid Infrastructure / ASM Node)
+  # -------------------------------------------------------------
+  grid01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: grid01
+    hostname: grid01
+    networks:
+      ansible-net:
+        ipv4_address: 192.168.1.103
+    volumes:
+      - shared-ssh-keys:/shared-keys:ro
+      - grid01-u01:/u01
+    ports:
+      - "15213:1521"
+      - "2203:22"
+
+networks:
+  ansible-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+
+volumes:
+  shared-ssh-keys:
+  db01-u01:
+  db02-u01:
+  grid01-u01:

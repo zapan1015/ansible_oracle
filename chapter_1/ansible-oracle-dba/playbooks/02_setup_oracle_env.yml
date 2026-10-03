@@ -1,0 +1,54 @@
+---
+# ========================================================
+# Playbook: 02_setup_oracle_env.yml
+# Description: Chapter 1 Master Project - Setup Oracle & Grid Base Directories
+# Targets: all (db01, db02, grid01)
+# ========================================================
+- name: Setup Oracle 19c Environment on Managed Nodes
+  hosts: all
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Create Oracle base directory (/u01/app/oracle)
+      ansible.builtin.file:
+        path: "{{ oracle_base }}"
+        state: directory
+        owner: oracle
+        group: oinstall
+        mode: "{{ dir_mode | default('0755') }}"
+
+    - name: Create Oracle Inventory directory (/u01/app/oraInventory)
+      ansible.builtin.file:
+        path: "{{ ora_inventory }}"
+        state: directory
+        owner: oracle
+        group: oinstall
+        mode: '0770'
+
+    - name: Create Oracle 19c product home directory on DB servers
+      ansible.builtin.file:
+        path: "{{ oracle_home }}"
+        state: directory
+        owner: oracle
+        group: oinstall
+        mode: '0755'
+      when: "'db_servers' in group_names"
+
+    - name: Create Oracle 19c Grid home directory on Grid servers
+      ansible.builtin.file:
+        path: "{{ grid_home }}"
+        state: directory
+        owner: grid
+        group: oinstall
+        mode: '0775'
+      when: "'grid_servers' in group_names"
+
+    - name: Verify Oracle base directory permissions and existence
+      ansible.builtin.command: ls -ld {{ oracle_base }}
+      register: oracle_home_check
+      changed_when: false
+
+    - name: Display Oracle Base directory details
+      ansible.builtin.debug:
+        msg: "[{{ inventory_hostname }}] Oracle Base: {{ oracle_home_check.stdout }}"

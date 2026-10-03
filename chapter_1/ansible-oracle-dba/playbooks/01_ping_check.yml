@@ -1,0 +1,21 @@
+---
+# ========================================================
+# Playbook: 01_ping_check.yml
+# Description: Test connectivity and gather facts from all Oracle lab nodes
+# ========================================================
+- name: Oracle Lab Connectivity & Basic Host Check
+  hosts: all
+  gather_facts: yes
+  become: no
+
+  tasks:
+    - name: Ping all managed nodes via Ansible SSH
+      ansible.builtin.ping:
+
+    - name: Display connection success details
+      ansible.builtin.debug:
+        msg: >-
+          Host: {{ inventory_hostname }} |
+          IP: {{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }} |
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }} |
+          Arch: {{ ansible_architecture }}

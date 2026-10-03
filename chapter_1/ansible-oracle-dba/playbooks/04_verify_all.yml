@@ -1,0 +1,28 @@
+---
+# ========================================================
+# Playbook: 04_verify_all.yml
+# Description: Comprehensive Verification for Chapter 1 Setup
+# ========================================================
+- name: Final Verification of Oracle 19c DBA Lab
+  hosts: all
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Verify /u01 directory tree
+      ansible.builtin.command: ls -la /u01/app
+      register: u01_tree
+      changed_when: false
+
+    - name: Verify SSH connectivity across nodes
+      ansible.builtin.command: hostname
+      register: host_name_cmd
+      changed_when: false
+
+    - name: Final report
+      ansible.builtin.debug:
+        msg: >-
+          [SUCCESS] {{ inventory_hostname }} is healthy.
+          Hostname: {{ host_name_cmd.stdout }}.
+          Directory status:
+          {{ u01_tree.stdout }}
