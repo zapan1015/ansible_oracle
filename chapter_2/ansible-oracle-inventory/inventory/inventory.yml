@@ -1,0 +1,59 @@
+---
+# ========================================================
+# Oracle DBA Master Inventory (YAML Format - Chapter 2)
+# ========================================================
+
+all:
+  children:
+    dev:
+      children:
+        dev_db_servers:
+          hosts:
+            devdb01:
+              ansible_host: 192.168.1.101
+              db_name: devdb
+              oracle_sid: DEVDB1
+        dev_grid_servers:
+          hosts:
+            devgrid01:
+              ansible_host: 192.168.1.111
+              oracle_sid: +ASMDEV
+        dev_dataguard_servers:
+          hosts:
+            devstd01:
+              ansible_host: 192.168.1.131
+              role: standby
+              oracle_sid: DEVSTD
+
+    test:
+      children:
+        test_db_servers:
+          hosts:
+            testdb01:
+              ansible_host: 192.168.1.102
+              db_name: testdb
+              oracle_sid: TSTDB1
+
+    prod:
+      children:
+        prod_db_servers:
+          hosts:
+            proddb01:
+              ansible_host: 192.168.1.103
+              db_name: proddb
+              oracle_sid: PRDDB1
+        prod_grid_servers:
+          hosts:
+            prodgrid01:
+              ansible_host: 192.168.1.113
+              oracle_sid: +ASMPRD
+        prod_rac_nodes:
+          hosts:
+            rac1:
+              ansible_host: 192.168.1.121
+              node_id: 1
+              oracle_sid: RAC1
+            rac2:
+              ansible_host: 192.168.1.122
+              node_id: 2
+              oracle_sid: RAC2

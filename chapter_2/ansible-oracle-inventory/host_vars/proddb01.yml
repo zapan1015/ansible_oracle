@@ -1,0 +1,8 @@
+---
+# host_vars/proddb01.yml
+db_name: proddb
+oracle_sid: PRDDB1
+instance_name: proddb1
+server_role: primary
+custom_memory_target: "4G"
+backup_retention_days: 60

@@ -1,0 +1,9 @@
+---
+# group_vars/prod.yml
+environment: PROD
+env_code: P
+backup_retention_days: 30
+monitoring_level: full_24x7
+maintenance_window: "Sun 02:00-05:00"
+rman_parallelism: 4
+strict_security_audit: true

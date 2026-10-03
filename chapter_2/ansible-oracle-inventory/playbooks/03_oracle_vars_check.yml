@@ -1,0 +1,43 @@
+---
+# ========================================================
+# Playbook: 03_oracle_vars_check.yml
+# Description: Verify Variable Inheritance & Overriding across Oracle Roles
+# ========================================================
+
+- name: Verify Single-Instance DB Server Variables
+  hosts: db_servers
+  gather_facts: no
+  tasks:
+    - name: Display DB Server Details
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "DB Name: {{ db_name | default('N/A') }}"
+          - "Oracle SID: {{ oracle_sid | default('N/A') }}"
+          - "Oracle Home: {{ oracle_base | default('/u01/app/oracle') }}"
+          - "Memory Target: {{ custom_memory_target | default('Standard') }}"
+
+- name: Verify Grid & ASM Server Variables
+  hosts: grid_servers
+  gather_facts: no
+  tasks:
+    - name: Display Grid Details
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "ASM SID: {{ oracle_sid }}"
+          - "ASM Diskgroup: {{ asm_diskgroup | default('DATA') }}"
+          - "Grid User: {{ grid_user | default('grid') }}"
+
+- name: Verify RAC Node Cluster Variables
+  hosts: rac_nodes
+  gather_facts: no
+  tasks:
+    - name: Display RAC Cluster Details
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "Cluster Name: {{ cluster_name | default('rac-cluster') }}"
+          - "Node ID: {{ node_id | default('N/A') }}"
+          - "SCAN Name: {{ scan_name | default('rac-scan.lab.local') }}"
+          - "VIP IP: {{ vip_ip | default('N/A') }}"

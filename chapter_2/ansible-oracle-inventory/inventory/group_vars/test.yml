@@ -1,0 +1,8 @@
+---
+# group_vars/test.yml
+environment: TEST
+env_code: T
+backup_retention_days: 7
+monitoring_level: medium
+maintenance_window: "Sun 00:00-03:00"
+rman_parallelism: 2

@@ -1,0 +1,9 @@
+---
+# group_vars/rac_nodes.yml
+cluster_name: rac-prod-cluster
+scan_name: rac-scan.lab.local
+scan_port: 1521
+db_type: rac_cluster
+oracle_home: /u01/app/oracle/product/19.3.0/dbhome_1
+grid_home: /u01/app/19c/grid
+total_rac_nodes: 2

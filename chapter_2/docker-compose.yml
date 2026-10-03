@@ -1,0 +1,145 @@
+services:
+  # 1. Ansible Control Node
+  ansible-control:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.control
+    container_name: ansible-control-ch2
+    hostname: ansible-control
+    user: oracle
+    working_dir: /home/oracle/ansible-oracle-inventory
+    environment:
+      - ANSIBLE_CONFIG=/home/oracle/ansible-oracle-inventory/ansible.cfg
+    volumes:
+      - ./ansible-oracle-inventory:/home/oracle/ansible-oracle-inventory
+      - shared-ssh-keys-ch2:/home/oracle/.ssh
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.10
+    command: >
+      bash -c "
+        mkdir -p /home/oracle/.ssh &&
+        if [ ! -f /home/oracle/.ssh/id_rsa ]; then
+          ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N '' -q;
+          chmod 600 /home/oracle/.ssh/id_rsa;
+          chmod 644 /home/oracle/.ssh/id_rsa.pub;
+        fi;
+        echo 'Chapter 2 Ansible Control Node is ready.';
+        tail -f /dev/null
+      "
+
+  # 2. DEV DB Server
+  devdb01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: devdb01
+    hostname: devdb01
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.101
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 3. TEST DB Server
+  testdb01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: testdb01
+    hostname: testdb01
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.102
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 4. PROD DB Server
+  proddb01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: proddb01
+    hostname: proddb01
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.103
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 5. DEV Grid/ASM Server
+  devgrid01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: devgrid01
+    hostname: devgrid01
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.111
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 6. PROD Grid/ASM Server
+  prodgrid01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: prodgrid01
+    hostname: prodgrid01
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.113
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 7. PROD RAC Node 1
+  rac1:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: rac1
+    hostname: rac1
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.121
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 8. PROD RAC Node 2
+  rac2:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: rac2
+    hostname: rac2
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.122
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+  # 9. DEV Data Guard Standby Server
+  devstd01:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: devstd01
+    hostname: devstd01
+    networks:
+      ansible-net-ch2:
+        ipv4_address: 192.168.1.131
+    volumes:
+      - shared-ssh-keys-ch2:/shared-keys:ro
+
+networks:
+  ansible-net-ch2:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+
+volumes:
+  shared-ssh-keys-ch2:

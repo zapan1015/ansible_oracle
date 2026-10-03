@@ -1,0 +1,7 @@
+---
+# host_vars/devdb01.yml
+db_name: devdb
+oracle_sid: DEVDB1
+instance_name: devdb1
+server_role: primary
+custom_memory_target: "1G"

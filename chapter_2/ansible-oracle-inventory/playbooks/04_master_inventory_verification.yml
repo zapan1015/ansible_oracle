@@ -1,0 +1,33 @@
+---
+# ========================================================
+# Playbook: 04_master_inventory_verification.yml
+# Description: Chapter 2 Master Project - Full Inventory & Node Audit
+# ========================================================
+- name: Chapter 2 Master Inventory Audit & Health Report
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    - name: Get Kernel and Uptime details
+      ansible.builtin.command: uname -a
+      register: uname_output
+      changed_when: false
+
+    - name: Verify Oracle user exists
+      ansible.builtin.command: id oracle
+      register: id_oracle
+      changed_when: false
+
+    - name: Display Host Audit Summary
+      ansible.builtin.debug:
+        msg:
+          - "=========================================================================="
+          - "Host: {{ inventory_hostname }} (IP: {{ ansible_host }})"
+          - "Environment: {{ environment | default('N/A') }}"
+          - "Primary Role Groups: {{ group_names | join(', ') }}"
+          - "Oracle SID: {{ oracle_sid | default('N/A') }}"
+          - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Kernel: {{ uname_output.stdout }}"
+          - "User Check: {{ id_oracle.stdout }}"
+          - "=========================================================================="

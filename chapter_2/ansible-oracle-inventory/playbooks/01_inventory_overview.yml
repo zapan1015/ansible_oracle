@@ -1,0 +1,16 @@
+---
+# ========================================================
+# Playbook: 01_inventory_overview.yml
+# Description: Display Inventory Groups and Host Hierarchy
+# ========================================================
+- name: Chapter 2 Inventory Overview & Group Verification
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Display Host and Associated Groups
+      ansible.builtin.debug:
+        msg: >-
+          Host: {{ inventory_hostname }} |
+          IP: {{ ansible_host }} |
+          Groups: {{ group_names | join(', ') }}

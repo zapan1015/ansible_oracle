@@ -1,0 +1,6 @@
+---
+# host_vars/devstd01.yml
+db_name: devstd
+oracle_sid: DEVSTD
+primary_db_name: devdb
+server_role: standby

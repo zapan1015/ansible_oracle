@@ -1,0 +1,10 @@
+---
+# group_vars/db_servers.yml
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19.3.0/dbhome_1
+oracle_user: oracle
+oracle_port: 1521
+listener_name: LISTENER
+db_type: single_instance
+backup_dir: /backup/oracle
+ora_inventory: /u01/app/oraInventory

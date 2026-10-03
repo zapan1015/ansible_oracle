@@ -1,0 +1,9 @@
+---
+# host_vars/rac2.yml
+oracle_sid: RAC2
+instance_name: RAC2
+node_number: 2
+vip_name: rac2-vip
+vip_ip: 192.168.1.312
+priv_ip: 192.168.17.302
+is_active_rac: true

@@ -1,0 +1,58 @@
+FROM oraclelinux:8
+
+LABEL maintainer="Oracle DBA Ansible Team"
+LABEL description="Ansible Control Node for Chapter 2 Inventory Lab"
+
+# 1. 시스템 업데이트 및 필수 패키지 설치
+RUN dnf install -y oracle-epel-release-el8 && \
+    dnf config-manager --set-enabled ol8_developer_EPEL && \
+    dnf install -y \
+        python39 \
+        python39-pip \
+        openssh-clients \
+        sshpass \
+        sudo \
+        git \
+        tar \
+        gzip \
+        vim-enhanced \
+        which \
+        net-tools \
+        bind-utils \
+        iproute \
+        procps-ng \
+        hostname && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+# 2. 파이썬 최신 앤서블 설치
+RUN python3.9 -m pip install --no-cache-dir --upgrade pip && \
+    python3.9 -m pip install --no-cache-dir \
+        ansible-core \
+        ansible \
+        jmespath
+
+# 3. 오라클 계정 및 권한 설정
+RUN groupadd -g 54321 oinstall && \
+    groupadd -g 54322 dba && \
+    useradd -u 54321 -g oinstall -G dba,wheel -m -s /bin/bash oracle && \
+    echo "oracle:oracle" | chpasswd && \
+    echo "oracle ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/oracle && \
+    chmod 0440 /etc/sudoers.d/oracle
+
+# 4. SSH 키 생성 및 환경변수 설정
+ENV ANSIBLE_CONFIG=/home/oracle/ansible-oracle-inventory/ansible.cfg
+
+USER oracle
+WORKDIR /home/oracle
+
+RUN mkdir -p /home/oracle/.ssh /home/oracle/ansible-oracle-inventory && \
+    chmod 700 /home/oracle/.ssh && \
+    ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N "" -q && \
+    chmod 600 /home/oracle/.ssh/id_rsa && \
+    chmod 644 /home/oracle/.ssh/id_rsa.pub && \
+    echo "export ANSIBLE_CONFIG=/home/oracle/ansible-oracle-inventory/ansible.cfg" >> /home/oracle/.bashrc
+
+WORKDIR /home/oracle/ansible-oracle-inventory
+
+CMD ["/bin/bash"]

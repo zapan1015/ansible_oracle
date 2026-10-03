@@ -1,0 +1,8 @@
+---
+# group_vars/dev.yml
+environment: DEV
+env_code: D
+backup_retention_days: 3
+monitoring_level: basic
+maintenance_window: "Sat 22:00-24:00"
+rman_parallelism: 1

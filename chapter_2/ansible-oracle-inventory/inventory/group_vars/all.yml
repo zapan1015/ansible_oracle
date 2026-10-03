@@ -1,0 +1,10 @@
+---
+# group_vars/all.yml
+ansible_user: oracle
+ansible_ssh_private_key_file: ~/.ssh/id_rsa
+ansible_python_interpreter: /usr/bin/python3
+oracle_group: oinstall
+dba_group: dba
+company_domain: lab.local
+admin_email: dba-team@lab.local
+dir_mode: '0755'

@@ -1,0 +1,7 @@
+---
+# group_vars/dataguard_servers.yml
+dg_mode: max_performance
+apply_mode: real_time_apply
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19.3.0/dbhome_1
+server_role: standby

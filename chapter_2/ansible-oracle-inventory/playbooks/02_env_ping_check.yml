@@ -1,0 +1,35 @@
+---
+# ========================================================
+# Playbook: 02_env_ping_check.yml
+# Description: Environment-based Ping & Connectivity Check (DEV, TEST, PROD)
+# ========================================================
+
+- name: 1. DEV Environment Ping Check
+  hosts: dev
+  gather_facts: no
+  tasks:
+    - name: Ping DEV nodes
+      ansible.builtin.ping:
+    - name: Report DEV Environment
+      ansible.builtin.debug:
+        msg: "[DEV] Host {{ inventory_hostname }} ({{ ansible_host }}) - Env: {{ environment | default('DEV') }}, Retention: {{ backup_retention_days | default(3) }}d"
+
+- name: 2. TEST Environment Ping Check
+  hosts: test
+  gather_facts: no
+  tasks:
+    - name: Ping TEST nodes
+      ansible.builtin.ping:
+    - name: Report TEST Environment
+      ansible.builtin.debug:
+        msg: "[TEST] Host {{ inventory_hostname }} ({{ ansible_host }}) - Env: {{ environment | default('TEST') }}, Retention: {{ backup_retention_days | default(7) }}d"
+
+- name: 3. PROD Environment Ping Check
+  hosts: prod
+  gather_facts: no
+  tasks:
+    - name: Ping PROD nodes
+      ansible.builtin.ping:
+    - name: Report PROD Environment
+      ansible.builtin.debug:
+        msg: "[PROD] Host {{ inventory_hostname }} ({{ ansible_host }}) - Env: {{ environment | default('PROD') }}, Retention: {{ backup_retention_days | default(30) }}d"

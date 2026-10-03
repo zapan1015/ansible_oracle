@@ -1,0 +1,4 @@
+---
+# host_vars/prodgrid01.yml
+oracle_sid: +ASMPRD
+asm_diskgroup: DATA_PROD

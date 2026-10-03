@@ -1,0 +1,4 @@
+---
+# host_vars/devgrid01.yml
+oracle_sid: +ASMDEV
+asm_diskgroup: DATA_DEV

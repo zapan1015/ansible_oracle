@@ -1,0 +1,7 @@
+---
+# host_vars/testdb01.yml
+db_name: testdb
+oracle_sid: TSTDB1
+instance_name: testdb1
+server_role: primary
+custom_memory_target: "2G"
