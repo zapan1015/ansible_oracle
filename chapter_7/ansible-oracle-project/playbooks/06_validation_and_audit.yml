@@ -1,0 +1,43 @@
+---
+- name: "Lab 8: Comprehensive Validation and Defensive Audit of Oracle DBA Roles"
+  hosts: dbservers
+  become: true
+  become_user: oracle
+
+  tasks:
+    - name: 1. Check Oracle Net configuration files deployed by oracle_dba role
+      ansible.builtin.stat:
+        path: "{{ oracle_home }}/network/admin/{{ item }}"
+      loop:
+        - listener.ora
+        - tnsnames.ora
+        - sqlnet.ora
+      register: net_files_stat
+
+    - name: 2. Check database state artifacts (Tablespace, User, SQL script)
+      ansible.builtin.stat:
+        path: "/tmp/oracle_db_state/{{ item }}"
+      loop:
+        - "tbs_{{ db_tablespace }}.dat"
+        - "user_{{ db_user }}.dat"
+        - "test_table.dat"
+      register: db_state_stat
+
+    - name: 3. Check live Oracle Listener status
+      ansible.builtin.command: lsnrctl status
+      register: lsnr_status_check
+      changed_when: false
+
+    - name: 4. Assert all Role artifacts and services meet DBA compliance standards
+      ansible.builtin.assert:
+        that:
+          - net_files_stat.results | map(attribute='stat.exists') | min
+          - db_state_stat.results | map(attribute='stat.exists') | min
+          - lsnr_status_check.rc == 0
+          - ("PORT=" ~ (listener_port | string)) in lsnr_status_check.stdout
+        fail_msg: "Compliance check failed on {{ inventory_hostname }}!"
+        success_msg: >-
+          Audit Passed on {{ inventory_hostname }} ({{ env_name | upper }}):
+          DB={{ db_name }}, Port={{ listener_port }}, User={{ db_user }},
+          Tablespace={{ db_tablespace }}, Listener=ACTIVE
+

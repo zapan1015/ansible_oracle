@@ -1,0 +1,46 @@
+---
+- name: Practice loops combined with when conditions
+  hosts: localhost
+  gather_facts: no
+  vars:
+    candidate_services:
+      - oracle
+      - listener
+      - crond
+      - postfix
+
+    db_environments:
+      - dev
+      - test
+      - staging
+      - prod
+
+    dba_users:
+      - name: ora_admin
+        status: active
+        role: dba
+      - name: test_user
+        status: inactive
+        role: developer
+      - name: sec_auditor
+        status: active
+        role: auditor
+
+  tasks:
+    - name: 1. Filter services using 'in' condition
+      ansible.builtin.debug:
+        msg: "Oracle core service identified: {{ item }}"
+      loop: "{{ candidate_services }}"
+      when: item in ['oracle', 'listener']
+
+    - name: 2. Filter environments (prod and test only)
+      ansible.builtin.debug:
+        msg: "Executing critical maintenance for: {{ item }}"
+      loop: "{{ db_environments }}"
+      when: item in ['prod', 'test']
+
+    - name: 3. Filter dictionary items by attribute status == active
+      ansible.builtin.debug:
+        msg: "Provisioning user '{{ item.name }}' with role '{{ item.role }}'"
+      loop: "{{ dba_users }}"
+      when: item.status == 'active'

@@ -1,0 +1,22 @@
+---
+- name: Practice conditions with facts and variables
+  hosts: dbservers
+  gather_facts: yes
+  vars:
+    required_oracle_release: "19c"
+    min_ram_mb: 2048
+  tasks:
+    - name: 1. Verify OS Distribution is OracleLinux
+      ansible.builtin.debug:
+        msg: "Verified Oracle Linux environment: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+      when: ansible_distribution == "OracleLinux"
+
+    - name: 2. Check system memory threshold using ansible_facts
+      ansible.builtin.debug:
+        msg: "Server {{ inventory_hostname }} has sufficient memory ({{ ansible_memtotal_mb }} MB >= {{ min_ram_mb }} MB)"
+      when: ansible_memtotal_mb >= min_ram_mb
+
+    - name: 3. Conditional message based on hostname
+      ansible.builtin.debug:
+        msg: "Primary DB Server Node 1 identified"
+      when: "'db01' in inventory_hostname"

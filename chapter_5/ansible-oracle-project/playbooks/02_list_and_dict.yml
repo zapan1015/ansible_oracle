@@ -1,0 +1,46 @@
+---
+- name: Practice list and dictionary loops
+  hosts: localhost
+  gather_facts: no
+  vars:
+    # 4장 리스트 반복용 데이터
+    db_services:
+      - oracle-db
+      - oracle-listener
+      - oracle-cron
+
+    # 5장 딕셔너리 반복용 데이터
+    db_instances:
+      DEV: "192.168.5.101"
+      TEST: "192.168.5.102"
+      PROD: "192.168.5.103"
+
+    db_details:
+      orcl_dev:
+        port: 1521
+        sid: DEV
+        sga_mb: 2048
+      orcl_test:
+        port: 1521
+        sid: TEST
+        sga_mb: 4096
+      orcl_prod:
+        port: 1521
+        sid: PROD
+        sga_mb: 8192
+
+  tasks:
+    - name: 1. Simple list loop
+      ansible.builtin.debug:
+        msg: "Checking service: {{ item }}"
+      loop: "{{ db_services }}"
+
+    - name: 2. Dictionary loop using dict2items
+      ansible.builtin.debug:
+        msg: "Database {{ item.key }} is hosted at {{ item.value }}"
+      loop: "{{ db_instances | dict2items }}"
+
+    - name: 3. Nested dictionary attribute access
+      ansible.builtin.debug:
+        msg: "Target {{ item.key }} -> SID: {{ item.value.sid }}, Port: {{ item.value.port }}, SGA: {{ item.value.sga_mb }}MB"
+      loop: "{{ db_details | dict2items }}"

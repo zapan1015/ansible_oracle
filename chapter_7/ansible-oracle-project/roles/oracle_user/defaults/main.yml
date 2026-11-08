@@ -1,0 +1,6 @@
+---
+oracle_user: oracle
+oracle_group: oinstall
+oracle_dba_group: dba
+oracle_base: /u01/app/oracle
+

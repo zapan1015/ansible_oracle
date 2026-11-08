@@ -1,0 +1,4 @@
+---
+oracle_dba_role_version: "1.0.0"
+oracle_state_dir: /tmp/oracle_db_state
+

@@ -1,0 +1,9 @@
+# Managed by Ansible role: oracle_env
+# Environment: {{ env_name | default('default') | upper }}
+export ORACLE_BASE={{ oracle_base }}
+export ORACLE_HOME={{ oracle_home }}
+export ORACLE_SID={{ sid }}
+export NLS_LANG={{ nls_lang }}
+export TNS_ADMIN={{ oracle_home }}/network/admin
+export PATH=$ORACLE_HOME/bin:$PATH
+

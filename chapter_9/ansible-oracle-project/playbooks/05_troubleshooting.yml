@@ -1,0 +1,20 @@
+---
+- name: Practice Vault troubleshooting and permission audits
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 1. Audit Vault password file permissions
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/../vault/.vault_pass"
+      register: pass_stat
+
+    - name: 2. Verify permission is 0600 or restricted
+      ansible.builtin.debug:
+        msg: "Vault password file mode: {{ pass_stat.stat.mode }} (Exists: {{ pass_stat.stat.exists }})"
+
+    - name: 3. Defensive variable check
+      ansible.builtin.assert:
+        that:
+          - pass_stat.stat.exists
+        fail_msg: "CRITICAL: Vault password file is missing!"
+        success_msg: "Security audit passed: Vault password file is intact."

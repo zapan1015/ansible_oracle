@@ -1,0 +1,8 @@
+db_name: DEV
+db_unique_name: DEV_DG
+oracle_home: /u01/app/oracle/dev
+listener_port: 1521
+backup_dir: /backup/dev
+env: dev
+is_rac: false
+data_guard: false

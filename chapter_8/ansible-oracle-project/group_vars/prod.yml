@@ -1,0 +1,11 @@
+environment: prod
+db_host: proddb
+listener_port: 1521
+db_name: proddb
+instance_name: proddb1
+enable_adr: true
+adr_base: "{{ oracle_base }}"
+log_level: ERROR
+sga_target: 8192M
+pga_aggregate_target: 4096M
+processes: 600

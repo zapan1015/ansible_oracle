@@ -1,0 +1,56 @@
+#!/bin/bash
+TARGET_DB="${@: -1}"
+
+# health_report.sql 요청 처리
+if [[ "$*" == *"health_report.sql"* ]]; then
+    DB_NAME="${TARGET_DB:-ORCL}"
+    echo "=========================================================="
+    echo "ORACLE INSTANCE HEALTH REPORT - $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "Database Name   : ${DB_NAME}"
+    echo "Instance Status : OPEN (READ WRITE)"
+    echo "Database Role   : PRIMARY"
+    echo "Log Mode        : ARCHIVELOG"
+    echo "Active Sessions : 14"
+    echo "SGA Total Size  : 4096 MB (Used: 2150 MB, Free: 1946 MB)"
+    echo "Tablespace Info : SYSTEM (42%), SYSAUX (55%), USERS (18%)"
+    echo "Listener Status : LISTENER (PORT 1521) - READY"
+    echo "Alert Log Status: 0 ORA- errors detected in last 24h"
+    echo "Health Status   : HEALTHY (PASSED ALL DBA CHECKS)"
+    echo "=========================================================="
+    exit 0
+fi
+
+# health_check.sql 요청 처리
+if [[ "$*" == *"health_check.sql"* ]]; then
+    DB_NAME="${TARGET_DB:-ORCL}"
+    echo "SQL*Plus: Release 19.0.0.0.0 - Production on $(date '+%a %b %d %T %Y')"
+    echo "Connected to: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0"
+    echo ""
+    echo "CHECK_NAME         DB_NAME    STATUS   DETAIL"
+    echo "------------------ ---------- -------- ---------------------------------"
+    echo "INSTANCE_STATUS    ${DB_NAME}       OPEN     Database open and accepting queries"
+    echo "ARCHIVE_LOG_DEST   ${DB_NAME}       VALID    FRA usage: 34% (Safe)"
+    echo "INVALID_OBJECTS    ${DB_NAME}       NONE     0 invalid objects detected"
+    echo ""
+    echo "1 row selected."
+    exit 0
+fi
+
+# tablespace 조회 쿼리 처리
+if [[ "$*" == *"dba_tablespace_usage_metrics"* ]]; then
+    echo "TABLESPACE_NAME                SIZE_GB    USED_GB"
+    echo "------------------------------ ---------- ----------"
+    echo "SYSTEM                              20.00       8.40"
+    echo "SYSAUX                              15.00       7.80"
+    echo "USERS                               10.00       1.80"
+    echo ""
+    echo "3 rows selected."
+    exit 0
+fi
+
+# 일반 SQL 실행 처리
+echo "SQL*Plus: Release 19.0.0.0.0 - Production on $(date '+%a %b %d %T %Y')"
+echo "Connected to: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0"
+echo ""
+echo "PL/SQL procedure successfully completed."
+exit 0

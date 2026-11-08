@@ -1,0 +1,19 @@
+---
+- name: Practice conditional rendering across environments
+  hosts: dbservers
+  gather_facts: no
+  tasks:
+    - name: Ensure listener.ora is rendered with environment conditions
+      ansible.builtin.template:
+        src: ../templates/listener.ora.j2
+        dest: "{{ tns_admin }}/listener.ora"
+        mode: '0644'
+
+    - name: Fetch environment-specific configuration lines
+      ansible.builtin.shell: "grep -E '(ADR_BASE_LISTENER|LOG_LEVEL_LISTENER|ADR is disabled)' {{ tns_admin }}/listener.ora"
+      register: cond_lines
+      changed_when: false
+
+    - name: Display environment-specific conditional results
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} (Env: {{ environment }}) -> {{ cond_lines.stdout_lines }}"

@@ -1,0 +1,6 @@
+#!/bin/bash
+export ORACLE_BASE=${ORACLE_BASE:-/u01/app/oracle}
+export ORACLE_HOME=${ORACLE_HOME:-/u01/app/oracle/product/19c}
+export ORACLE_SID=${ORACLE_SID:-ORCL}
+export PATH=$ORACLE_HOME/bin:$PATH
+

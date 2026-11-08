@@ -1,0 +1,66 @@
+---
+- name: Print a message from oracle_db role
+  ansible.builtin.debug:
+    msg: "Executing oracle_db role on {{ inventory_hostname }} (DB: {{ db_name }}, Port: {{ listener_port }}, SGA: {{ sga_target }}, Wallet: {{ oracle_wallet_enabled }})"
+
+- name: Create Oracle directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  loop:
+    - "{{ oracle_base }}"
+    - "{{ oracle_config_dir }}"
+    - "{{ oracle_home }}/dbs"
+    - "{{ oracle_home }}/network/admin"
+    - "{{ oracle_base }}/scripts"
+
+- name: Copy static Oracle configuration file (init.ora)
+  ansible.builtin.copy:
+    src: init.ora
+    dest: "{{ oracle_home }}/dbs/init.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+
+- name: Copy static SQL script to target server
+  ansible.builtin.copy:
+    src: setup_db.sql
+    dest: "{{ oracle_base }}/setup_db.sql"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+
+- name: Copy static DBA helper shell script
+  ansible.builtin.copy:
+    src: db_script.sh
+    dest: "{{ oracle_base }}/scripts/db_script.sh"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+
+- name: Deploy dynamic init_{{ sid }}.ora from Jinja2 template
+  ansible.builtin.template:
+    src: init.ora.j2
+    dest: "{{ oracle_home }}/dbs/init_{{ sid }}.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+
+- name: Deploy dynamic listener.ora from Jinja2 template
+  ansible.builtin.template:
+    src: listener.ora.j2
+    dest: "{{ oracle_home }}/network/admin/listener.ora"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  notify: Restart Oracle listener
+
+- name: Start Oracle listener if not running
+  ansible.builtin.command: lsnrctl start
+  become: true
+  become_user: "{{ oracle_user }}"
+  register: listener_out
+  changed_when: "'starting' in (listener_out.stdout | lower)"

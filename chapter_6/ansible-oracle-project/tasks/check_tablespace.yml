@@ -1,0 +1,15 @@
+- name: Get tablespace usage
+  ansible.builtin.shell: |
+    . {{ oracle_home }}/bin/oraenv <<< {{ db_name }}
+    sqlplus -s / as sysdba <<EOF
+    set heading off feedback off
+    select tablespace_name, round((1-(bytes_free/bytes_total))*100)
+    from (select a.tablespace_name,
+                 sum(a.bytes) bytes_total,
+                 sum(a.bytes)-sum(nvl(b.bytes,0)) bytes_free
+          from dba_data_files a left join dba_free_space b
+            on a.file_id = b.file_id
+          group by a.tablespace_name);
+    EOF
+  register: ts_usage
+  changed_when: false

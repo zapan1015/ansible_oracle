@@ -1,0 +1,37 @@
+---
+- name: Master Project - Comprehensive Oracle Net Configuration Deployment
+  hosts: dbservers
+  gather_facts: no
+  tasks:
+    - name: 1. Deploy listener.ora
+      ansible.builtin.template:
+        src: ../templates/listener.ora.j2
+        dest: "{{ tns_admin }}/listener.ora"
+        owner: oracle
+        group: oinstall
+        mode: '0644'
+
+    - name: 2. Deploy tnsnames.ora
+      ansible.builtin.template:
+        src: ../templates/tnsnames.ora.j2
+        dest: "{{ tns_admin }}/tnsnames.ora"
+        owner: oracle
+        group: oinstall
+        mode: '0644'
+
+    - name: 3. Deploy sqlnet.ora
+      ansible.builtin.template:
+        src: ../templates/sqlnet.ora.j2
+        dest: "{{ tns_admin }}/sqlnet.ora"
+        owner: oracle
+        group: oinstall
+        mode: '0644'
+
+    - name: 4. Verify all Oracle Net configuration files
+      ansible.builtin.shell: "ls -la {{ tns_admin }}/*.ora"
+      register: ora_files
+      changed_when: false
+
+    - name: 5. Display deployed configuration files
+      ansible.builtin.debug:
+        msg: "Server {{ inventory_hostname }}: {{ ora_files.stdout_lines }}"

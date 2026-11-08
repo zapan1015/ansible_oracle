@@ -1,0 +1,85 @@
+services:
+  ansible-control:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.control
+    container_name: ansible-control-ch10
+    hostname: ansible-control
+    user: oracle
+    working_dir: /home/oracle/ansible-oracle-project
+    environment:
+      - ANSIBLE_CONFIG=/home/oracle/ansible-oracle-project/ansible.cfg
+      - ANSIBLE_CFG_IN_WORLD_WRITABLE_DIR=1
+    networks:
+      oracle-net:
+        ipv4_address: 192.168.10.10
+    volumes:
+      - ./ansible-oracle-project:/home/oracle/ansible-oracle-project
+      - shared-ssh-keys-ch10:/home/oracle/.ssh
+    command: >
+      bash -c "
+        mkdir -p /home/oracle/.ssh &&
+        if [ ! -f /home/oracle/.ssh/id_rsa ]; then
+          ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N '' -q;
+          chmod 600 /home/oracle/.ssh/id_rsa;
+          chmod 644 /home/oracle/.ssh/id_rsa.pub;
+        fi;
+        echo 'Chapter 10 Ansible Control Node is ready.';
+        tail -f /dev/null
+      "
+    stdin_open: true
+    tty: true
+
+  devdb:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: devdb
+    hostname: devdb
+    networks:
+      oracle-net:
+        ipv4_address: 192.168.10.101
+    volumes:
+      - shared-ssh-keys-ch10:/shared-keys:ro
+    depends_on:
+      - ansible-control
+
+  testdb:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: testdb
+    hostname: testdb
+    networks:
+      oracle-net:
+        ipv4_address: 192.168.10.102
+    volumes:
+      - shared-ssh-keys-ch10:/shared-keys:ro
+    depends_on:
+      - ansible-control
+
+  proddb:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: proddb
+    hostname: proddb
+    networks:
+      oracle-net:
+        ipv4_address: 192.168.10.103
+    volumes:
+      - shared-ssh-keys-ch10:/shared-keys:ro
+    depends_on:
+      - ansible-control
+
+networks:
+  oracle-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/24
+          gateway: 192.168.10.1
+
+volumes:
+  shared-ssh-keys-ch10:

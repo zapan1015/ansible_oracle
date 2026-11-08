@@ -1,0 +1,6 @@
+---
+# handlers for oracle_packages role
+
+- name: Log package update event
+  ansible.builtin.debug:
+    msg: "Notice: Package state changed on {{ inventory_hostname }}. System audit log updated."

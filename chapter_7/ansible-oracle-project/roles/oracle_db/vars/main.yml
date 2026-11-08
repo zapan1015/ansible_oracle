@@ -1,0 +1,4 @@
+---
+oracle_config_dir: /u01/app/oracle/config
+oracle_wallet_enabled: true
+

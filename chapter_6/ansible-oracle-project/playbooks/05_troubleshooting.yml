@@ -1,0 +1,21 @@
+---
+- name: Practice defensive condition patterns and troubleshooting
+  hosts: dbservers
+  gather_facts: no
+  vars:
+    # db01에만 rac_node 정의, db02에는 미정의
+    defined_roles:
+      db01: PRIMARY
+      # db02는 누락
+
+  tasks:
+    - name: 1. Defensive condition using is defined
+      ansible.builtin.debug:
+        msg: "Role for {{ inventory_hostname }} is {{ defined_roles[inventory_hostname] }}"
+      when:
+        - defined_roles[inventory_hostname] is defined
+
+    - name: 2. Defensive condition using default filter
+      ansible.builtin.debug:
+        msg: "Safe execution with fallback: {{ defined_roles[inventory_hostname] | default('STANDBY_FALLBACK') }}"
+      when: (defined_roles[inventory_hostname] | default('STANDBY_FALLBACK')) == 'STANDBY_FALLBACK'

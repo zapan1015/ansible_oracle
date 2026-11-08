@@ -1,0 +1,11 @@
+---
+env_name: prod
+db_name: PRODDB
+sid: PRODDB
+listener_port: 1522
+db_user: app_user
+db_profile: DEFAULT
+db_container: ORCL
+sga_target: 8G
+sqlnet_expire_time: 5
+

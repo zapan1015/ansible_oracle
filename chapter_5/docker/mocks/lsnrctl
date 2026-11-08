@@ -1,0 +1,26 @@
+#!/bin/bash
+CMD=$1
+LISTENER_NAME=${2:-LISTENER}
+
+echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+echo "Copyright (c) 1991, 2023, Oracle.  All rights reserved."
+echo ""
+echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$(hostname))(PORT=1521)))"
+echo "STATUS of the LISTENER"
+echo "------------------------"
+echo "Alias                     ${LISTENER_NAME}"
+echo "Version                   TNSLSNR for Linux: Version 19.0.0.0.0 - Production"
+echo "Start Date                $(date '+%d-%b-%Y %H:%M:%S')"
+echo "Uptime                    3 days 14 hr. 22 min. 48 sec"
+echo "Trace Level               off"
+echo "Security                  ON: Local OS Authentication"
+echo "SNMP                      OFF"
+echo "Listener Parameter File   /u01/app/oracle/product/19c/network/admin/listener.ora"
+echo "Listener Log File         /u01/app/oracle/diag/tnslsnr/$(hostname)/listener/alert/log.xml"
+echo "Listening Endpoints Summary..."
+echo "  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=$(hostname))(PORT=1521)))"
+echo "Services Summary..."
+echo "  Service \"ORCL\" has 1 instance(s)."
+echo "    Instance \"ORCL\", status READY, has 1 handler(s) for this service..."
+echo "The command completed successfully"
+exit 0

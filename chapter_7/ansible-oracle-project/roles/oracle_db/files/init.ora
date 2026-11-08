@@ -1,0 +1,14 @@
+# Static Oracle Initialization Parameter File (files/init.ora)
+db_name='ORCL'
+memory_target=1G
+processes=150
+audit_file_dest='/u01/app/oracle/admin/orcl/adump'
+audit_trail='db'
+db_block_size=8192
+db_domain=''
+diagnostic_dest='/u01/app/oracle'
+open_cursors=300
+remote_login_passwordfile='EXCLUSIVE'
+undo_tablespace='UNDOTBS1'
+compatible='19.0.0'
+

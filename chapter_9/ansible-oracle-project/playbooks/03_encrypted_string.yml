@@ -1,0 +1,25 @@
+---
+- name: Practice variable-level encryption with encrypted strings
+  hosts: dbservers
+  gather_facts: no
+  vars:
+    # 예시: 단일 변수 암호화 테스트용 변수
+    db_admin_account: "sysadmin_ops"
+    oracle_token: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30383233343033666232326463613561663032653065333561363935633162313062303634383465
+          3138376162616463316562653366323731626337353165340a316630313339336563313031326663
+          35326632366330376433383861373737613730656439353333373735663062366538336134616238
+          6466626264613262330a646565623238343363643831353930323738313761383538323964656638
+          35333438623063636364663563626436323831646462316161666436396365633062
+  tasks:
+    - name: 1. Confirm loaded encrypted string variable length without exposing raw value
+      ansible.builtin.debug:
+        msg: "Oracle auth token successfully loaded (Token length: {{ oracle_token | length }} chars)"
+
+    - name: 2. Verify token pattern safely
+      ansible.builtin.assert:
+        that:
+          - oracle_token is defined
+          - oracle_token | length > 10
+        success_msg: "Encrypted string was decrypted seamlessly in memory!"

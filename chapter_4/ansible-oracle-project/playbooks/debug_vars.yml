@@ -1,0 +1,19 @@
+---
+- name: Debug variable values
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - ../vars/common.yml
+    - ../group_vars/{{ env }}.yml
+  tasks:
+    - name: Show all important variables
+      debug:
+        msg:
+          - "DB Name: {{ db_name }}"
+          - "DB Unique Name: {{ db_unique_name }}"
+          - "Oracle Home: {{ oracle_home }}"
+          - "Listener Port: {{ listener_port }}"
+          - "Backup Dir: {{ backup_dir }}"
+          - "Environment: {{ env }}"
+          - "DBA User: {{ dba_user }}"
+          - "DBA Group: {{ dba_group }}"

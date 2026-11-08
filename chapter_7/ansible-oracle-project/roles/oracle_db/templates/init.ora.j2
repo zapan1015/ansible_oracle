@@ -1,0 +1,8 @@
+# Dynamic Oracle Initialization Parameter File (templates/init.ora.j2)
+db_name='{{ db_name }}'
+instance_name='{{ sid }}'
+sga_target={{ sga_target | default('2G') }}
+processes=300
+diagnostic_dest='{{ oracle_base }}'
+compatible='19.0.0'
+

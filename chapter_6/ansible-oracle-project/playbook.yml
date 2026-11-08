@@ -1,0 +1,21 @@
+---
+- name: Conditional Oracle Server Operations
+  hosts: dbservers
+  gather_facts: yes
+  vars_files:
+    - vars/variables.yml
+  tasks:
+    - name: 1. Check database open mode
+      ansible.builtin.import_tasks: tasks/check_db_status.yml
+
+    - name: 2. Conditionally start database if not READ WRITE
+      ansible.builtin.import_tasks: tasks/start_db.yml
+
+    - name: 3. Check tablespace usage
+      ansible.builtin.import_tasks: tasks/check_tablespace.yml
+
+    - name: 4. Conditionally alert on high tablespace usage
+      ansible.builtin.import_tasks: tasks/alert_tablespace.yml
+
+    - name: 5. Conditionally apply patch archive
+      ansible.builtin.import_tasks: tasks/apply_patch.yml

@@ -1,0 +1,22 @@
+---
+- name: Master Project - Check listener status and register output
+  hosts: oracle_servers
+  gather_facts: no
+  vars:
+    listeners:
+      - LISTENER
+      - LISTENER_SCAN1
+  tasks:
+    - name: Check listener status using loop and register
+      ansible.builtin.shell: "lsnrctl status {{ item }}"
+      register: listener_results
+      loop: "{{ listeners }}"
+      loop_control:
+        label: "Checking Listener: {{ item }}"
+
+    - name: Display summary of listener status results
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} | Target: {{ item.item }} | RC: {{ item.rc }} | Status: {{ 'OK' if item.rc == 0 else 'FAILED' }}"
+      loop: "{{ listener_results.results }}"
+      loop_control:
+        label: "{{ item.item }}"

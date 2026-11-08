@@ -1,0 +1,82 @@
+services:
+  # 1. Ansible Control Node
+  ansible-control:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.control
+    container_name: ansible-control-ch5
+    hostname: ansible-control
+    user: oracle
+    working_dir: /home/oracle/ansible-oracle-project
+    environment:
+      - ANSIBLE_CONFIG=/home/oracle/ansible-oracle-project/ansible.cfg
+      - ANSIBLE_CFG_IN_WORLD_WRITABLE_DIR=1
+    volumes:
+      - ./ansible-oracle-project:/home/oracle/ansible-oracle-project
+      - shared-ssh-keys-ch5:/home/oracle/.ssh
+    networks:
+      ansible-net-ch5:
+        ipv4_address: 192.168.5.10
+    command: >
+      bash -c "
+        mkdir -p /home/oracle/.ssh &&
+        if [ ! -f /home/oracle/.ssh/id_rsa ]; then
+          ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N '' -q;
+          chmod 600 /home/oracle/.ssh/id_rsa;
+          chmod 644 /home/oracle/.ssh/id_rsa.pub;
+        fi;
+        chmod 755 /home/oracle/ansible-oracle-project || true;
+        echo 'Chapter 5 Ansible Control Node is ready.';
+        tail -f /dev/null
+      "
+
+  # 2. Oracle Server 1 (db1)
+  db1:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: db1
+    hostname: db1
+    networks:
+      ansible-net-ch5:
+        ipv4_address: 192.168.5.101
+    volumes:
+      - shared-ssh-keys-ch5:/shared-keys:ro
+
+  # 3. Oracle Server 2 (db2)
+  db2:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: db2
+    hostname: db2
+    networks:
+      ansible-net-ch5:
+        ipv4_address: 192.168.5.102
+    volumes:
+      - shared-ssh-keys-ch5:/shared-keys:ro
+
+  # 4. Oracle Server 3 (db3)
+  db3:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: db3
+    hostname: db3
+    networks:
+      ansible-net-ch5:
+        ipv4_address: 192.168.5.103
+    volumes:
+      - shared-ssh-keys-ch5:/shared-keys:ro
+
+networks:
+  ansible-net-ch5:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.5.0/24
+          gateway: 192.168.5.1
+
+volumes:
+  shared-ssh-keys-ch5:

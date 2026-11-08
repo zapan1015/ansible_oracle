@@ -1,0 +1,23 @@
+#!/bin/bash
+INPUT_SQL=$(cat -)
+
+if [[ "${INPUT_SQL}" == *"dba_tablespace_usage_metrics"* ]]; then
+    echo "TABLESPACE_NAME                USED_PCT"
+    echo "------------------------------ --------"
+    echo "SYSTEM                            64.20"
+    echo "SYSAUX                            72.50"
+    echo "USERS                             35.10"
+    exit 0
+fi
+
+if [[ "${INPUT_SQL}" == *"open_mode"* ]] || [[ "${INPUT_SQL}" == *"v\$database"* ]] || [[ "${INPUT_SQL}" == *"v$database"* ]]; then
+    echo "OPEN_MODE"
+    echo "--------------------"
+    echo "READ WRITE"
+    exit 0
+fi
+
+echo "SQL*Plus: Release 19.0.0.0.0 - Production"
+echo "Connected to: Oracle Database 19c Enterprise Edition"
+echo "Oracle Health Check: ALL SYSTEMS OPERATIONAL"
+exit 0

@@ -1,0 +1,21 @@
+---
+- name: Practice Jinja2 for-loop and loop control variables
+  hosts: dbservers
+  gather_facts: no
+  tasks:
+    - name: Generate tnsnames.ora from database list
+      ansible.builtin.template:
+        src: ../templates/tnsnames.ora.j2
+        dest: "{{ tns_admin }}/tnsnames.ora"
+        owner: oracle
+        group: oinstall
+        mode: '0644'
+
+    - name: Verify generated tnsnames entries
+      ansible.builtin.shell: "grep -E '^([A-Z0-9_]+ =|# \\[Entry)' {{ tns_admin }}/tnsnames.ora"
+      register: tns_entries
+      changed_when: false
+
+    - name: Display tnsnames generated aliases
+      ansible.builtin.debug:
+        msg: "Server: {{ inventory_hostname }} -> Generated entries: {{ tns_entries.stdout_lines }}"

@@ -1,0 +1,37 @@
+---
+- name: Practice package validation, defensive assertion, and retry policy
+  hosts: all
+  become: yes
+  tasks:
+    - name: 1. Verify resilient package installation with retry policy
+      ansible.builtin.dnf:
+        name: libaio
+        state: present
+      register: retry_result
+      retries: 3
+      delay: 5
+      until: retry_result is succeeded
+
+    - name: 2. Query rpm database for mandatory Oracle prerequisite packages
+      ansible.builtin.shell: rpm -q libaio binutils ksh
+      register: mandatory_check
+      changed_when: false
+      failed_when: false
+
+    - name: 3. Defensive assertion to guarantee all mandatory packages are installed
+      ansible.builtin.assert:
+        that:
+          - mandatory_check.rc == 0
+        fail_msg: "CRITICAL: Some mandatory Oracle prerequisite packages are missing!"
+        success_msg: "Audit passed: All mandatory Oracle prerequisite packages exist on {{ inventory_hostname }}."
+
+    - name: 4. Check fetched reports existence on control node
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/../reports/{{ inventory_hostname }}_packages.txt"
+      register: report_stat
+      delegate_to: localhost
+      become: no
+
+    - name: 5. Confirm audit report collection
+      ansible.builtin.debug:
+        msg: "Audit report for {{ inventory_hostname }} collected on Control Node: {{ report_stat.stat.exists }} (Size: {{ report_stat.stat.size }} bytes)"

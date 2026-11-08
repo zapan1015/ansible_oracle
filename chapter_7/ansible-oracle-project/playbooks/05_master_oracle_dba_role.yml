@@ -1,0 +1,9 @@
+---
+- name: "Lab 6 & 7: Master Project - Execute Reusable Oracle DBA Role (DEV / TEST / PROD)"
+  hosts: dbservers
+  become: true
+  become_user: oracle
+
+  roles:
+    - role: oracle_dba
+

@@ -1,0 +1,15 @@
+---
+- name: Practice single package installation and idempotency check
+  hosts: dbservers
+  become: yes
+  tasks:
+    - name: 1. Install single prerequisite package (ksh)
+      ansible.builtin.dnf:
+        name: ksh
+        state: present
+        update_cache: yes
+      register: dnf_result
+
+    - name: 2. Show installation result and change status
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} | Package: ksh | Changed: {{ dnf_result.changed }}"

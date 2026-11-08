@@ -1,0 +1,48 @@
+#!/bin/bash
+STATE_DIR="/tmp/oracle_db_state"
+mkdir -p "${STATE_DIR}"
+
+SCRIPT_ARG=""
+for arg in "$@"; do
+    if [[ "$arg" == @* ]]; then
+        SCRIPT_ARG="${arg#@}"
+    fi
+done
+
+if [ -n "${SCRIPT_ARG}" ] && [ -f "${SCRIPT_ARG}" ]; then
+    INPUT_SQL=$(cat "${SCRIPT_ARG}")
+elif [ ! -t 0 ]; then
+    INPUT_SQL=$(cat -)
+else
+    INPUT_SQL=""
+fi
+
+if [[ "${INPUT_SQL}" == *"test_table"* ]]; then
+    echo "Ansible Oracle|$(date '+%Y-%m-%d %H:%M:%S')" > "${STATE_DIR}/test_table.dat"
+    echo "Table created."
+    echo "1 row created."
+    echo "Commit complete."
+    exit 0
+fi
+
+if [[ "${INPUT_SQL}" == *"CREATE USER"* ]] || [[ "${INPUT_SQL}" == *"ALTER USER"* ]]; then
+    USER_NAME=$(echo "${INPUT_SQL}" | grep -oE '(CREATE|ALTER) USER [a-zA-Z0-9_]+' | awk '{print $3}' | head -n 1)
+    USER_NAME=${USER_NAME:-app_user}
+    echo "${USER_NAME}|ACTIVE|$(date '+%Y-%m-%d %H:%M:%S')" > "${STATE_DIR}/user_${USER_NAME}.dat"
+    echo "User ${USER_NAME} provisioned successfully."
+    exit 0
+fi
+
+if [[ "${INPUT_SQL}" == *"CREATE TABLESPACE"* ]]; then
+    TBS_NAME=$(echo "${INPUT_SQL}" | grep -oE 'CREATE TABLESPACE [a-zA-Z0-9_]+' | awk '{print $3}' | head -n 1)
+    TBS_NAME=${TBS_NAME:-APP_DATA}
+    echo "${TBS_NAME}|ONLINE|$(date '+%Y-%m-%d %H:%M:%S')" > "${STATE_DIR}/tbs_${TBS_NAME}.dat"
+    echo "Tablespace ${TBS_NAME} created."
+    exit 0
+fi
+
+echo "SQL*Plus: Release 19.0.0.0.0 - Production"
+echo "Connected to: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production"
+echo "PL/SQL procedure successfully completed."
+exit 0
+

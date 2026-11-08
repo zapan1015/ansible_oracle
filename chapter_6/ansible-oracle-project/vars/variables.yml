@@ -1,0 +1,6 @@
+oracle_home: /u01/app/oracle/product/19c
+db_name: ORCL
+tablespace_threshold: 85
+patch_file: /u01/patch/19c_patch.zip
+apply_patch: true
+perform_backup: true

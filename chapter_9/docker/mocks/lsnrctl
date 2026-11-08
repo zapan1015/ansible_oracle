@@ -1,0 +1,10 @@
+#!/bin/bash
+CMD=$1
+echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production"
+echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$(hostname))(PORT=1521)))"
+echo "STATUS of the LISTENER"
+echo "------------------------"
+echo "Alias                     LISTENER"
+echo "Version                   TNSLSNR for Linux: Version 19.0.0.0.0 - Production"
+echo "The command completed successfully"
+exit 0

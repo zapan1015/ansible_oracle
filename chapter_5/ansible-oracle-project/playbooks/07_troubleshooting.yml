@@ -1,0 +1,27 @@
+---
+- name: Practice troubleshooting and defensive loop patterns
+  hosts: localhost
+  gather_facts: no
+  vars:
+    # 안전한 기본값(default) 및 검증 테스트
+    safe_db_list:
+      - SID: ORCL
+        role: PRIMARY
+      - SID: TEST
+        role: STANDBY
+      - SID: DEV
+        # role 키가 누락된 경우
+
+  tasks:
+    - name: 1. Validate list definition before loop execution
+      ansible.builtin.debug:
+        msg: "Processing DB: {{ item.SID }} (Role: {{ item.role | default('UNKNOWN') }})"
+      loop: "{{ safe_db_list }}"
+      loop_control:
+        label: "SID: {{ item.SID }}"
+
+    - name: 2. Demonstrate safe dictionary key access with default filter
+      ansible.builtin.debug:
+        msg: "DB {{ item.SID }} is running with role {{ item.role | default('STANDBY_DEFAULT') }}"
+      loop: "{{ safe_db_list }}"
+      when: item.role is defined

@@ -1,0 +1,24 @@
+---
+- name: Practice environment-specific package provisioning (DEV / TEST / PROD)
+  hosts: all
+  become: yes
+  tasks:
+    - name: 1. Display target environment and designated package list
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} | Environment: {{ env_name }} | Target Packages: {{ oracle_packages }}"
+
+    - name: 2. Provision packages tailored for this environment
+      ansible.builtin.dnf:
+        name: "{{ oracle_packages }}"
+        state: present
+      register: env_pkg_result
+
+    - name: 3. Verify specific environment feature packages
+      ansible.builtin.shell: >
+        rpm -qa | egrep 'binutils|libaio|ksh|net-tools|sysstat' | sort
+      register: env_check
+      changed_when: false
+
+    - name: 4. Display installed package count and summary
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} ({{ env_name }}) has {{ env_check.stdout_lines | length }} key packages installed: {{ env_check.stdout_lines }}"

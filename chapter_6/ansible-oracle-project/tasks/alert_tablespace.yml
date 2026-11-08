@@ -1,0 +1,7 @@
+- name: Send alert for high tablespace usage
+  ansible.builtin.debug:
+    msg: "ALERT: High tablespace usage detected on {{ inventory_hostname }} (Exceeding {{ tablespace_threshold }}%)! Usage details: {{ ts_usage.stdout_lines }}"
+  when:
+    - ts_usage is defined
+    - ts_usage.stdout is defined
+    - (ts_usage.stdout | regex_search('(8[5-9]|9[0-9]|100)')) is not none

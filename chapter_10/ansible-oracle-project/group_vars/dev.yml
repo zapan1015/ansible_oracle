@@ -1,0 +1,8 @@
+---
+env_name: "dev"
+oracle_packages:
+  - binutils
+  - libaio
+  - ksh
+oracle_packages_update:
+  - ksh

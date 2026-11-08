@@ -1,0 +1,22 @@
+---
+- name: Practice two-step pattern - Check and start listener conditionally
+  hosts: dbservers
+  gather_facts: no
+  tasks:
+    - name: 1. Step 1 - Check current listener status
+      ansible.builtin.shell: "lsnrctl status"
+      register: listener_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: 2. Step 2 - Start listener only if check failed (rc != 0)
+      ansible.builtin.shell: "lsnrctl start"
+      when: listener_check.rc != 0
+      register: listener_start
+
+    - name: 3. Report listener status action
+      ansible.builtin.debug:
+        msg: >-
+          Host: {{ inventory_hostname }} |
+          Initial Status: {{ 'RUNNING' if listener_check.rc == 0 else 'STOPPED' }} |
+          Action: {{ 'Started Listener' if (listener_start is defined and listener_start.changed | default(false)) else 'Already running (Skipped start)' }}

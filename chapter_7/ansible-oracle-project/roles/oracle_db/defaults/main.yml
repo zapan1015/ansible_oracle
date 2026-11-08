@@ -1,0 +1,11 @@
+---
+oracle_user: oracle
+oracle_group: oinstall
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19c
+listener_port: 1521
+db_name: ORCL
+sid: ORCL
+sga_target: 1G
+run_prereq_roles: true
+

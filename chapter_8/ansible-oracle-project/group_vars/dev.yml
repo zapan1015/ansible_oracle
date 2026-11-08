@@ -1,0 +1,11 @@
+environment: dev
+db_host: devdb
+listener_port: 1523
+db_name: devdb
+instance_name: devdb1
+enable_adr: false
+adr_base: "{{ oracle_base }}"
+log_level: DEBUG
+sga_target: 2048M
+pga_aggregate_target: 1024M
+processes: 150

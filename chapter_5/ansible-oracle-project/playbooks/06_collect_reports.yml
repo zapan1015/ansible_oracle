@@ -1,0 +1,31 @@
+---
+- name: Master Project - Collect health reports from multiple databases
+  hosts: oracle_servers
+  gather_facts: no
+  vars:
+    target_dbs:
+      - ORCL
+      - TEST
+      - DEV
+  tasks:
+    - name: Generate health reports via sqlplus execution loop
+      ansible.builtin.shell: |
+        /usr/local/bin/sqlplus -s / as sysdba @/scripts/health_report.sql {{ item }} > /tmp/health_{{ item }}.log
+      loop: "{{ target_dbs }}"
+      loop_control:
+        label: "Generating report for DB: {{ item }}"
+
+    - name: Verify generated report log files
+      ansible.builtin.stat:
+        path: "/tmp/health_{{ item }}.log"
+      register: report_files
+      loop: "{{ target_dbs }}"
+      loop_control:
+        label: "/tmp/health_{{ item }}.log"
+
+    - name: Display report file status and sizes
+      ansible.builtin.debug:
+        msg: "Server: {{ inventory_hostname }} | File: {{ item.stat.path }} | Exists: {{ item.stat.exists }} | Size: {{ item.stat.size }} bytes"
+      loop: "{{ report_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"

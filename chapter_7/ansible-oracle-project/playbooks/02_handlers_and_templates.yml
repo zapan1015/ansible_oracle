@@ -1,0 +1,21 @@
+---
+- name: "Lab 3: Verify Jinja2 template deployment and Handler notification"
+  hosts: dbservers
+  become: true
+  become_user: oracle
+  vars:
+    run_prereq_roles: false
+
+  roles:
+    - role: oracle_db
+
+  post_tasks:
+    - name: Check listener event log on target node
+      ansible.builtin.command: tail -n 4 /tmp/oracle_db_state/listener_events.log
+      register: event_log_out
+      changed_when: false
+
+    - name: Display recent Listener handler events
+      ansible.builtin.debug:
+        msg: "{{ event_log_out.stdout_lines }}"
+

@@ -1,0 +1,74 @@
+FROM oraclelinux:8
+
+LABEL maintainer="Oracle DBA Ansible Team"
+LABEL description="Oracle Managed Node for Ansible Lab - Chapter 9 (Ansible Vault)"
+
+# 1. 시스템 업데이트 및 필수 패키지 설치
+RUN dnf install -y oracle-epel-release-el8 && \
+    dnf config-manager --set-enabled ol8_developer_EPEL && \
+    dnf install -y \
+        oracle-database-preinstall-19c \
+        openssh-server \
+        openssh-clients \
+        python39 \
+        sudo \
+        tar \
+        gzip \
+        vim-enhanced \
+        which \
+        net-tools \
+        bind-utils \
+        iproute \
+        procps-ng \
+        passwd \
+        hostname \
+        bc && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+# 2. Grid 및 RAC 관련 그룹 생성
+RUN groupadd -g 54327 asmdba || true && \
+    groupadd -g 54328 asmoper || true && \
+    groupadd -g 54329 asmadmin || true && \
+    groupadd -g 54330 racdba || true
+
+# 3. grid 사용자 생성
+RUN useradd -u 54322 -g oinstall -G asmadmin,asmdba,asmoper,dba,wheel -m -s /bin/bash grid && \
+    echo "grid:grid" | chpasswd && \
+    echo "grid ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/grid && \
+    chmod 0440 /etc/sudoers.d/grid
+
+# 4. oracle 사용자 생성 및 sudo 권한 설정
+RUN usermod -aG asmadmin,asmdba,racdba,wheel oracle && \
+    echo "oracle:oracle" | chpasswd && \
+    echo "oracle ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/oracle && \
+    chmod 0440 /etc/sudoers.d/oracle
+
+# 5. SSHD 설정
+RUN ssh-keygen -A && \
+    mkdir -p /var/run/sshd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+# 6. Oracle 디렉터리 기반 구조 생성
+RUN mkdir -p /u01/app/oracle/product/19c/network/admin \
+             /u01/app/oracle/dbs \
+             /u01/app/oraInventory \
+             /scripts \
+             /backup && \
+    chown -R oracle:oinstall /u01 /backup /scripts && \
+    chmod -R 775 /u01 /backup /scripts
+
+# 7. Mock 오라클 CLI 배포
+COPY mocks/sqlplus /usr/local/bin/sqlplus
+COPY mocks/lsnrctl /usr/local/bin/lsnrctl
+RUN chmod +x /usr/local/bin/sqlplus /usr/local/bin/lsnrctl
+
+# 8. 엔트리포인트 배포
+COPY entrypoint-node.sh /usr/local/bin/entrypoint-node.sh
+RUN chmod +x /usr/local/bin/entrypoint-node.sh
+
+EXPOSE 22 1521 5500
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-node.sh"]

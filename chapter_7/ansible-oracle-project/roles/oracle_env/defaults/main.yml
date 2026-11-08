@@ -1,0 +1,8 @@
+---
+oracle_user: oracle
+oracle_group: oinstall
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19c
+sid: ORCL
+nls_lang: AMERICAN_AMERICA.AL32UTF8
+

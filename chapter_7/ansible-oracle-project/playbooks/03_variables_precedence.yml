@@ -1,0 +1,30 @@
+---
+- name: "Lab 4: Demonstrate Ansible Role Variable Precedence across DEV / TEST / PROD"
+  hosts: dbservers
+  become: true
+  become_user: oracle
+
+  pre_tasks:
+    - name: Inspect effective variables before role execution
+      ansible.builtin.debug:
+        msg: >-
+          Host={{ inventory_hostname }} |
+          Env={{ env_name | default('undefined') }} |
+          DB={{ db_name }} |
+          SID={{ sid }} |
+          ListenerPort={{ listener_port }} |
+          SGA={{ sga_target }} |
+          Profile={{ db_profile }}
+
+  roles:
+    - role: oracle_db
+
+  post_tasks:
+    - name: Read generated init_{{ sid }}.ora content
+      ansible.builtin.command: "cat {{ oracle_home }}/dbs/init_{{ sid }}.ora"
+      register: init_ora_content
+      changed_when: false
+
+    - name: Show rendered init_{{ sid }}.ora parameters
+      ansible.builtin.debug:
+        msg: "{{ init_ora_content.stdout_lines }}"

@@ -1,0 +1,10 @@
+---
+env_name: "prod"
+oracle_packages:
+  - binutils
+  - libaio
+  - ksh
+  - net-tools
+  - sysstat
+oracle_packages_update:
+  - sysstat

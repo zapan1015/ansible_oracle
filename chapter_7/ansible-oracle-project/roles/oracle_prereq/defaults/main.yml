@@ -1,0 +1,7 @@
+---
+oracle_base: /u01/app/oracle
+oracle_user: oracle
+oracle_group: oinstall
+oracle_shmmax: 4294967295
+oracle_shmall: 1048576
+

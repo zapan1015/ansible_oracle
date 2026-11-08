@@ -1,0 +1,3 @@
+-- Oracle Health Check SQL Script (Simulated)
+PROMPT Running Health Check for &1 ...
+SELECT sys_context('USERENV', 'DB_NAME') FROM dual;

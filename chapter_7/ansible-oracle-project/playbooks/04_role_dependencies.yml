@@ -1,0 +1,25 @@
+---
+- name: "Lab 5: Verify Role Dependencies (oracle_prereq -> oracle_user -> oracle_env -> oracle_dba)"
+  hosts: dbservers
+  become: true
+  become_user: oracle
+
+  roles:
+    - role: oracle_dba
+
+  post_tasks:
+    - name: Verify files created by dependency roles (oracle_prereq, oracle_user, oracle_env)
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ oracle_base }}/admin/sysctl_oracle_prereq.conf"
+        - "{{ oracle_base }}/admin/oracle_security_limits.conf"
+        - "/home/{{ oracle_user }}/.oracle_env_profile"
+      register: dep_files_check
+
+    - name: Confirm all dependency role artifacts exist
+      ansible.builtin.debug:
+        msg: "Artifact {{ item.item }} exists: {{ item.stat.exists }}"
+      loop: "{{ dep_files_check.results }}"
+      loop_control:
+        label: "{{ item.item }}"

@@ -1,0 +1,82 @@
+services:
+  # 1. Ansible Control Node
+  ansible-control:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.control
+    container_name: ansible-control-ch4
+    hostname: ansible-control
+    user: oracle
+    working_dir: /home/oracle/ansible-oracle-project
+    environment:
+      - ANSIBLE_CONFIG=/home/oracle/ansible-oracle-project/ansible.cfg
+      - ANSIBLE_CFG_IN_WORLD_WRITABLE_DIR=1
+    volumes:
+      - ./ansible-oracle-project:/home/oracle/ansible-oracle-project
+      - shared-ssh-keys-ch4:/home/oracle/.ssh
+    networks:
+      ansible-net-ch4:
+        ipv4_address: 192.168.4.10
+    command: >
+      bash -c "
+        mkdir -p /home/oracle/.ssh &&
+        if [ ! -f /home/oracle/.ssh/id_rsa ]; then
+          ssh-keygen -t rsa -b 4096 -f /home/oracle/.ssh/id_rsa -N '' -q;
+          chmod 600 /home/oracle/.ssh/id_rsa;
+          chmod 644 /home/oracle/.ssh/id_rsa.pub;
+        fi;
+        chmod 755 /home/oracle/ansible-oracle-project || true;
+        echo 'Chapter 4 Ansible Control Node is ready.';
+        tail -f /dev/null
+      "
+
+  # 2. Oracle Server (Dev)
+  devdb:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: devdb
+    hostname: devdb
+    networks:
+      ansible-net-ch4:
+        ipv4_address: 192.168.4.101
+    volumes:
+      - shared-ssh-keys-ch4:/shared-keys:ro
+
+  # 3. Oracle Server (Test)
+  testdb:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: testdb
+    hostname: testdb
+    networks:
+      ansible-net-ch4:
+        ipv4_address: 192.168.4.102
+    volumes:
+      - shared-ssh-keys-ch4:/shared-keys:ro
+
+  # 4. Oracle Server (Prod)
+  proddb:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.oracle_node
+    container_name: proddb
+    hostname: proddb
+    networks:
+      ansible-net-ch4:
+        ipv4_address: 192.168.4.103
+    volumes:
+      - shared-ssh-keys-ch4:/shared-keys:ro
+
+networks:
+  ansible-net-ch4:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.4.0/24
+          gateway: 192.168.4.1
+
+volumes:
+  shared-ssh-keys-ch4:

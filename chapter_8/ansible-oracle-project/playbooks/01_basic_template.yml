@@ -1,0 +1,21 @@
+---
+- name: Practice basic Jinja2 template rendering
+  hosts: dbservers
+  gather_facts: no
+  tasks:
+    - name: Render basic listener configuration
+      ansible.builtin.template:
+        src: ../templates/listener.ora.j2
+        dest: "{{ tns_admin }}/listener.ora"
+        owner: oracle
+        group: oinstall
+        mode: '0644'
+
+    - name: Check rendered listener.ora content
+      ansible.builtin.command: "cat {{ tns_admin }}/listener.ora"
+      register: lsnr_content
+      changed_when: false
+
+    - name: Display rendered listener snippet
+      ansible.builtin.debug:
+        msg: "{{ lsnr_content.stdout_lines[:7] }}"

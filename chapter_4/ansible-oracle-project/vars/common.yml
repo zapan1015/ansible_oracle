@@ -1,0 +1,8 @@
+dba_user: oracle
+dba_group: oinstall
+backup_base_dir: /backup
+log_dir: /var/log/ansible
+script_dir: /u01/scripts
+notification_email: dba-team@company.com
+check_disk_threshold: 80
+check_session_threshold: 100

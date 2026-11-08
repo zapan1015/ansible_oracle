@@ -1,0 +1,83 @@
+---
+- name: Ensure Oracle DBA directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0755"
+  loop:
+    - "{{ oracle_base }}"
+    - "{{ oracle_base }}/scripts"
+    - "{{ oracle_home }}/network/admin"
+    - "{{ oracle_state_dir }}"
+
+- name: Deploy Oracle Net configuration templates (listener.ora, tnsnames.ora, sqlnet.ora)
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ oracle_home }}/network/admin/{{ item }}"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+  loop:
+    - listener.ora
+    - tnsnames.ora
+    - sqlnet.ora
+  notify: Restart Oracle listener
+
+- name: Copy static SQL setup script to target server
+  ansible.builtin.copy:
+    src: setup_db.sql
+    dest: "{{ oracle_base }}/scripts/setup_db.sql"
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+    mode: "0644"
+
+- name: Check if Oracle tablespace is already provisioned
+  ansible.builtin.stat:
+    path: "{{ oracle_state_dir }}/tbs_{{ db_tablespace }}.dat"
+  register: tbs_stat
+
+- name: Create Oracle tablespace ({{ db_tablespace }})
+  ansible.builtin.shell: |
+    sqlplus -S / as sysdba <<EOF
+    CREATE TABLESPACE {{ db_tablespace }} DATAFILE '{{ oracle_base }}/oradata/{{ db_name }}/{{ db_tablespace | lower }}01.dbf' SIZE 100M AUTOEXTEND ON;
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  when: not tbs_stat.stat.exists
+
+- name: Check if Oracle application user ({{ db_user }}) is already provisioned
+  ansible.builtin.stat:
+    path: "{{ oracle_state_dir }}/user_{{ db_user }}.dat"
+  register: user_stat
+
+- name: Create Oracle application user ({{ db_user }})
+  ansible.builtin.shell: |
+    sqlplus -S / as sysdba <<EOF
+    ALTER SESSION SET CONTAINER = {{ db_container }};
+    CREATE USER {{ db_user }} IDENTIFIED BY "OracleRole#123" PROFILE {{ db_profile }} DEFAULT TABLESPACE {{ db_tablespace }};
+    GRANT CREATE SESSION, CREATE TABLE TO {{ db_user }};
+    EOF
+  become: true
+  become_user: "{{ oracle_user }}"
+  when: not user_stat.stat.exists
+
+- name: Check if initial SQL script (setup_db.sql) was already executed
+  ansible.builtin.stat:
+    path: "{{ oracle_state_dir }}/test_table.dat"
+  register: sql_stat
+
+- name: Execute static SQL script (setup_db.sql)
+  ansible.builtin.command: "sqlplus -S / as sysdba @{{ oracle_base }}/scripts/setup_db.sql"
+  become: true
+  become_user: "{{ oracle_user }}"
+  when: not sql_stat.stat.exists
+
+- name: Ensure Oracle listener is running
+  ansible.builtin.command: lsnrctl start
+  become: true
+  become_user: "{{ oracle_user }}"
+  register: lsnr_start_out
+  changed_when: "'starting' in (lsnr_start_out.stdout | lower)"
+

@@ -1,0 +1,21 @@
+---
+- name: Practice multiple package installation using loop
+  hosts: dbservers
+  become: yes
+  vars:
+    loop_packages:
+      - binutils
+      - ksh
+      - smartmontools
+  tasks:
+    - name: 1. Install packages using loop
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ loop_packages }}"
+      register: loop_result
+
+    - name: 2. Confirm installation of loop packages
+      ansible.builtin.debug:
+        msg: "Installed package '{{ item.item }}' on {{ inventory_hostname }} (Changed: {{ item.changed }})"
+      loop: "{{ loop_result.results }}"

@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Oracle DBA Automation Team
+  description: Role for provisioning and auditing prerequisite packages for Oracle Database
+  company: Internal DBA Operations
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+dependencies: []

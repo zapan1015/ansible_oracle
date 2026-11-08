@@ -1,0 +1,8 @@
+db_name: TEST
+db_unique_name: TEST_DG
+oracle_home: /u01/app/oracle/test
+listener_port: 1521
+backup_dir: /backup/test
+env: test
+is_rac: false
+data_guard: false

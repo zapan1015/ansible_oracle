@@ -1,0 +1,27 @@
+---
+- name: Practice loops combined with conditions (stat check before creation)
+  hosts: dbservers
+  gather_facts: no
+  vars:
+    required_directories:
+      - /backup/data
+      - /backup/archivelog
+      - /u01/app/oracle/admin
+  tasks:
+    - name: 1. Check directory existence using stat loop
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: dir_stats
+      loop: "{{ required_directories }}"
+
+    - name: 2. Create directory only when it does not exist
+      ansible.builtin.file:
+        path: "{{ item.item }}"
+        state: directory
+        owner: oracle
+        group: oinstall
+        mode: '0755'
+      loop: "{{ dir_stats.results }}"
+      when: not item.stat.exists
+      loop_control:
+        label: "{{ item.item }}"

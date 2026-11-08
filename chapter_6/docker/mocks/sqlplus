@@ -1,0 +1,45 @@
+#!/bin/bash
+INPUT_SQL=$(cat -)
+HOST_NAME=$(hostname)
+
+# 1. Database Status 쿼리 (open_mode)
+if [[ "${INPUT_SQL}" == *"open_mode"* ]]; then
+    if [[ "${HOST_NAME}" == *"db02"* ]] && [ ! -f /tmp/db02_started ]; then
+        echo "MOUNTED"
+    else
+        echo "READ WRITE"
+    fi
+    exit 0
+fi
+
+# 2. Database Startup 명령
+if [[ "${INPUT_SQL}" == *"startup"* ]]; then
+    touch /tmp/db02_started
+    echo "ORACLE instance started."
+    echo "Total System Global Area  4294967296 bytes"
+    echo "Database mounted."
+    echo "Database opened."
+    exit 0
+fi
+
+# 3. Tablespace Usage 쿼리
+if [[ "${INPUT_SQL}" == *"bytes_free"* ]] || [[ "${INPUT_SQL}" == *"dba_data_files"* ]]; then
+    if [[ "${HOST_NAME}" == *"db01"* ]]; then
+        # db01은 SYSAUX가 88%로 임계값(85) 초과 시뮬레이션
+        echo "SYSTEM 65"
+        echo "SYSAUX 88"
+        echo "USERS 72"
+    else
+        # db02는 모든 테이블스페이스가 안전(임계값 이하) 시뮬레이션
+        echo "SYSTEM 45"
+        echo "SYSAUX 62"
+        echo "USERS 38"
+    fi
+    exit 0
+fi
+
+# 4. 기타 기본 SQL 실행
+echo "SQL*Plus: Release 19.0.0.0.0 - Production"
+echo "Connected to: Oracle Database 19c Enterprise Edition"
+echo "PL/SQL procedure successfully completed."
+exit 0

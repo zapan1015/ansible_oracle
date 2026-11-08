@@ -1,0 +1,24 @@
+---
+- name: Validate required variables
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - ../vars/common.yml
+    - ../group_vars/{{ env }}.yml
+  tasks:
+    - name: Check if db_name and oracle_home are defined
+      assert:
+        that:
+          - db_name is defined
+          - db_name | length > 0
+          - oracle_home is defined
+          - oracle_home | length > 0
+        fail_msg: "Required variables (db_name, oracle_home) are missing or empty!"
+        success_msg: "Variables validated: db_name={{ db_name }}, oracle_home={{ oracle_home }}"
+
+    - name: Display environment info
+      debug:
+        msg:
+          - "Environment: {{ env }}"
+          - "DB Name: {{ db_name }}"
+          - "Oracle Home: {{ oracle_home }}"

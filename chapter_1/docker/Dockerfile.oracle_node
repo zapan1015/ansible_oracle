@@ -53,7 +53,7 @@ RUN ssh-keygen -A && \
 
 # 6. Oracle 디렉터리 기반 구조 생성 (19c 표준 경로)
 RUN mkdir -p /u01/app/oracle /u01/app/oraInventory /u01/app/19c/grid && \
-    chown -R oracle:oinstall /u01/app/oracle /u01/app/oraInventory && \
+    chown -R oracle:oinstall /u01 && \
     chown -R grid:oinstall /u01/app/19c/grid && \
     chmod -R 775 /u01
 

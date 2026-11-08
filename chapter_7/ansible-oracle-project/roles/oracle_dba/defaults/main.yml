@@ -1,0 +1,14 @@
+---
+oracle_user: oracle
+oracle_group: oinstall
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19c
+db_profile: DEFAULT
+db_container: ORCL
+db_user: app_user
+db_tablespace: APP_DATA
+db_name: ORCL
+sid: ORCL
+listener_port: 1521
+sqlnet_expire_time: 10
+

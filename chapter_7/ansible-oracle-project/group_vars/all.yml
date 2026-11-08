@@ -1,0 +1,12 @@
+---
+oracle_user: oracle
+oracle_group: oinstall
+oracle_dba_group: dba
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19c
+oracle_net_admin: /u01/app/oracle/product/19c/network/admin
+db_container: ORCL
+db_profile: DEFAULT
+db_user: app_user
+db_tablespace: APP_DATA
+

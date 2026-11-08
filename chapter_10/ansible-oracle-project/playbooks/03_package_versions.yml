@@ -1,0 +1,19 @@
+---
+- name: Practice package states and updates (present vs latest vs absent)
+  hosts: dbservers
+  become: yes
+  tasks:
+    - name: 1. Ensure sysstat is installed to latest version
+      ansible.builtin.dnf:
+        name: sysstat
+        state: latest
+      register: latest_result
+
+    - name: 2. Query sysstat rpm version details
+      ansible.builtin.shell: rpm -q --qf "%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n" sysstat
+      register: rpm_ver
+      changed_when: false
+
+    - name: 3. Display sysstat version details
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }} | Installed sysstat version: {{ rpm_ver.stdout | trim }}"

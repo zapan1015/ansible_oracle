@@ -1,0 +1,7 @@
+- name: Apply Oracle patch if requested
+  ansible.builtin.unarchive:
+    src: "{{ patch_file }}"
+    dest: /u01/patch
+    remote_src: yes
+  when: apply_patch | bool
+  register: patch_result

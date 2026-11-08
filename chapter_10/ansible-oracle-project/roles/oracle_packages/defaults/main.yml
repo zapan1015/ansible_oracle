@@ -1,0 +1,10 @@
+---
+# defaults for oracle_packages role
+oracle_packages:
+  - binutils
+  - libaio
+  - ksh
+
+oracle_packages_update: []
+
+report_output_path: /tmp/oracle_packages_report.txt

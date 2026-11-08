@@ -1,0 +1,34 @@
+#!/bin/bash
+CMD=$1
+TARGET_LSNR=${2:-LISTENER}
+HOST_NAME=$(hostname)
+
+if [ "$CMD" = "status" ]; then
+    if [[ "${HOST_NAME}" == *"db02"* ]] && [ ! -f /tmp/lsnr_db02_started ]; then
+        echo "TNS-12541: TNS:no listener"
+        echo "TNS-12560: TNS:protocol adapter error"
+        echo "  TNS-00511: No listener"
+        exit 1
+    else
+        echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production"
+        echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${HOST_NAME})(PORT=1521)))"
+        echo "STATUS of the LISTENER"
+        echo "------------------------"
+        echo "Alias                     ${TARGET_LSNR}"
+        echo "Version                   TNSLSNR for Linux: Version 19.0.0.0.0 - Production"
+        echo "The command completed successfully"
+        exit 0
+    fi
+fi
+
+if [ "$CMD" = "start" ]; then
+    touch /tmp/lsnr_db02_started
+    echo "Starting /u01/app/oracle/product/19c/bin/tnslsnr: please wait..."
+    echo "TNSLSNR for Linux: Version 19.0.0.0.0 - Production"
+    echo "The listener supports no services"
+    echo "The command completed successfully"
+    exit 0
+fi
+
+echo "LSNRCTL: unknown command ${CMD}"
+exit 0

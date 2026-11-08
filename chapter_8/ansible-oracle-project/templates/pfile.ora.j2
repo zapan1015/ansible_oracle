@@ -1,0 +1,13 @@
+# ====================================================================
+# Initialization Parameter File (pfile) for {{ db_name | upper }}
+# Environment: {{ oracle_env | upper }}
+# ====================================================================
+
+db_name = '{{ db_name | upper }}'
+instance_name = '{{ instance_name }}'
+sga_target = {{ sga_target }}
+pga_aggregate_target = {{ pga_aggregate_target }}
+processes = {{ processes }}
+audit_file_dest = '{{ oracle_base }}/admin/{{ db_name | lower }}/adump'
+diagnostic_dest = '{{ oracle_base }}'
+open_cursors = 300

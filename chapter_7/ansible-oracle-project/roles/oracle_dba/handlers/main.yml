@@ -1,0 +1,8 @@
+---
+- name: Restart Oracle listener
+  ansible.builtin.shell: |
+    lsnrctl stop
+    lsnrctl start
+  become: true
+  become_user: "{{ oracle_user }}"
+

@@ -1,0 +1,3 @@
+-- Oracle Health Report SQL Script (Simulated)
+PROMPT Generating Health Report for &1 ...
+SELECT sys_context('USERENV', 'DB_NAME') FROM dual;

@@ -1,0 +1,11 @@
+---
+- name: "Lab 2: Execute basic oracle_db role (tasks, files, templates, idempotency)"
+  hosts: dbservers
+  become: true
+  become_user: oracle
+  vars:
+    run_prereq_roles: false
+
+  roles:
+    - role: oracle_db
+

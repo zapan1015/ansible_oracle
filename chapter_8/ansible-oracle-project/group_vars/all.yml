@@ -1,0 +1,27 @@
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19c
+tns_admin: "{{ oracle_home }}/network/admin"
+db_domain: example.com
+
+# tnsnames.ora 반복 생성용 공통 데이터베이스 목록
+all_databases:
+  - name: DEVDB
+    host: devdb
+    port: 1523
+    service_name: devdb.example.com
+    is_active: true
+  - name: TESTDB
+    host: testdb
+    port: 1522
+    service_name: testdb.example.com
+    is_active: true
+  - name: PRODDB
+    host: proddb
+    port: 1521
+    service_name: proddb.example.com
+    is_active: true
+  - name: DRDB
+    host: drdb
+    port: 1521
+    service_name: drdb.example.com
+    is_active: false

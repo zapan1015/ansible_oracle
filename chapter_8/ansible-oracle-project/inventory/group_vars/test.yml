@@ -1,0 +1,13 @@
+oracle_env: test
+env_name: test
+environment_type: test
+db_host: testdb
+listener_port: 1522
+db_name: testdb
+instance_name: testdb1
+enable_adr: true
+adr_base: "{{ oracle_base }}"
+log_level: INFO
+sga_target: 4096M
+pga_aggregate_target: 2048M
+processes: 300

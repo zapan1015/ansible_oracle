@@ -1,0 +1,30 @@
+---
+- name: Practice basic loops (Strings, Numbers, Variables)
+  hosts: localhost
+  gather_facts: no
+  vars:
+    oracle_environments:
+      - dev
+      - test
+      - prod
+  tasks:
+    - name: 1. Loop through string items
+      ansible.builtin.debug:
+        msg: "Processing target node: {{ item }}"
+      loop:
+        - db1
+        - db2
+        - db3
+
+    - name: 2. Loop through numeric ports
+      ansible.builtin.debug:
+        msg: "Oracle Listener Port: {{ item }}"
+      loop:
+        - 1521
+        - 1522
+        - 1523
+
+    - name: 3. Loop through variable list
+      ansible.builtin.debug:
+        msg: "Managing Environment: {{ item }}"
+      loop: "{{ oracle_environments }}"

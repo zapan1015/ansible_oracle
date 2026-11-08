@@ -1,0 +1,7 @@
+---
+- name: Master Project - Automated Oracle Server Package Provisioning with Roles
+  hosts: all
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: oracle_packages

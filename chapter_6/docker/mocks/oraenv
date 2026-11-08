@@ -1,0 +1,5 @@
+#!/bin/bash
+TARGET_SID=${1:-ORCL}
+export ORACLE_SID=${TARGET_SID}
+export ORACLE_HOME=/u01/app/oracle/product/19c
+export PATH=$PATH:$ORACLE_HOME/bin

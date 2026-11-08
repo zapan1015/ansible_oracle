@@ -1,0 +1,17 @@
+---
+- name: Master Project - Create directories on multiple Oracle homes
+  hosts: oracle_servers
+  gather_facts: no
+  vars:
+    oracle_homes:
+      - /u01/app/oracle/product/19c
+      - /u01/app/oracle/product/12.1.0
+  tasks:
+    - name: Create admin and scripts directory structure using loop
+      ansible.builtin.file:
+        path: "{{ item }}/admin/scripts"
+        state: directory
+        owner: oracle
+        group: oinstall
+        mode: '0755'
+      loop: "{{ oracle_homes }}"

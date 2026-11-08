@@ -1,0 +1,14 @@
+---
+- name: Environment-aware Oracle DBA automation
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - ../vars/common.yml
+    - ../group_vars/{{ env }}.yml
+  tasks:
+    - name: Display environment info
+      debug:
+        msg:
+          - "Environment: {{ env }}"
+          - "DB Name: {{ db_name }}"
+          - "Oracle Home: {{ oracle_home }}"

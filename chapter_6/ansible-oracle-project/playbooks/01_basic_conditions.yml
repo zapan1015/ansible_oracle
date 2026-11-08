@@ -1,0 +1,17 @@
+---
+- name: Practice basic condition syntax and skipping
+  hosts: dbservers
+  gather_facts: no
+  vars:
+    maintenance_mode: true
+    is_production: false
+  tasks:
+    - name: 1. Task executed when maintenance_mode is true
+      ansible.builtin.debug:
+        msg: "Executing pre-maintenance checks on {{ inventory_hostname }}"
+      when: maintenance_mode
+
+    - name: 2. Task skipped when is_production is false
+      ansible.builtin.debug:
+        msg: "CRITICAL: Running strictly on production environment!"
+      when: is_production

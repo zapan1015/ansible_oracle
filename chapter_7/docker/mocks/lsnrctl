@@ -1,0 +1,81 @@
+#!/bin/bash
+CMD=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+TARGET_LSNR=${2:-LISTENER}
+HOST_NAME=$(hostname)
+STATE_DIR="/tmp/oracle_db_state"
+STATE_FILE="${STATE_DIR}/listener_running"
+EVENT_LOG="${STATE_DIR}/listener_events.log"
+LSNR_CONF="/u01/app/oracle/product/19c/network/admin/listener.ora"
+
+mkdir -p "${STATE_DIR}"
+
+PORT="1521"
+if [ -f "${LSNR_CONF}" ]; then
+    DETECTED_PORT=$(grep -oE 'PORT\s*=\s*[0-9]+' "${LSNR_CONF}" | head -n 1 | grep -oE '[0-9]+' || true)
+    if [ -n "${DETECTED_PORT}" ]; then
+        PORT="${DETECTED_PORT}"
+    fi
+fi
+
+case "${CMD}" in
+    status)
+        if [ -f "${STATE_FILE}" ]; then
+            echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+            echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${HOST_NAME})(PORT=${PORT})))"
+            echo "STATUS of the LISTENER"
+            echo "------------------------"
+            echo "Alias                     ${TARGET_LSNR}"
+            echo "Version                   TNSLSNR for Linux: Version 19.0.0.0.0 - Production"
+            echo "Listener Parameter File   ${LSNR_CONF}"
+            echo "Listening Endpoints Summary..."
+            echo "  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=${HOST_NAME})(PORT=${PORT})))"
+            echo "The command completed successfully"
+            exit 0
+        else
+            echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+            echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${HOST_NAME})(PORT=${PORT})))"
+            echo "TNS-12541: TNS:no listener"
+            echo " TNS-12560: TNS:protocol adapter error"
+            echo "  TNS-00511: No listener"
+            exit 1
+        fi
+        ;;
+    start)
+        if [ -f "${STATE_FILE}" ]; then
+            echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+            echo "TNS-01106: Listener using listener name ${TARGET_LSNR} has already been started"
+            exit 0
+        else
+            echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+            echo "Starting /u01/app/oracle/product/19c/bin/tnslsnr: please wait..."
+            echo "TNSLSNR for Linux: Version 19.0.0.0.0 - Production"
+            echo "System parameter file is ${LSNR_CONF}"
+            echo "Listening on: (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=${HOST_NAME})(PORT=${PORT})))"
+            echo "The command completed successfully"
+            echo "RUNNING_PORT=${PORT}" > "${STATE_FILE}"
+            echo "$(date '+%Y-%m-%d %H:%M:%S') [START] Listener ${TARGET_LSNR} started on ${HOST_NAME}:${PORT}" >> "${EVENT_LOG}"
+            exit 0
+        fi
+        ;;
+    stop)
+        rm -f "${STATE_FILE}"
+        echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+        echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${HOST_NAME})(PORT=${PORT})))"
+        echo "The command completed successfully"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') [STOP] Listener ${TARGET_LSNR} stopped on ${HOST_NAME}:${PORT}" >> "${EVENT_LOG}"
+        exit 0
+        ;;
+    reload)
+        echo "RUNNING_PORT=${PORT}" > "${STATE_FILE}"
+        echo "LSNRCTL for Linux: Version 19.0.0.0.0 - Production on $(date '+%d-%b-%Y %H:%M:%S')"
+        echo "Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${HOST_NAME})(PORT=${PORT})))"
+        echo "The command completed successfully"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') [RELOAD] Listener ${TARGET_LSNR} reloaded on ${HOST_NAME}:${PORT}" >> "${EVENT_LOG}"
+        exit 0
+        ;;
+    *)
+        echo "LSNRCTL: usage: lsnrctl [status|start|stop|reload]"
+        exit 1
+        ;;
+esac
+

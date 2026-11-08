@@ -1,0 +1,11 @@
+---
+env_name: test
+db_name: TESTDB
+sid: TESTDB
+listener_port: 1521
+db_user: app_user
+db_profile: DEFAULT
+db_container: ORCL
+sga_target: 4G
+sqlnet_expire_time: 15
+

@@ -1,0 +1,7 @@
+---
+oracle_base_packages:
+  - binutils
+  - libaio
+  - ksh
+
+report_output_path: /tmp/oracle_packages_report.txt

@@ -1,0 +1,29 @@
+---
+- name: Practice Jinja2 filters with Oracle initialization parameter file
+  hosts: dbservers
+  gather_facts: no
+  tasks:
+    - name: Ensure $ORACLE_HOME/dbs directory exists
+      ansible.builtin.file:
+        path: "{{ oracle_home }}/dbs"
+        state: directory
+        owner: oracle
+        group: oinstall
+        mode: '0755'
+
+    - name: Generate init<SID>.ora pfile using filters
+      ansible.builtin.template:
+        src: ../templates/pfile.ora.j2
+        dest: "{{ oracle_home }}/dbs/init{{ db_name | lower }}.ora"
+        owner: oracle
+        group: oinstall
+        mode: '0640'
+
+    - name: Check generated pfile content
+      ansible.builtin.command: "cat {{ oracle_home }}/dbs/init{{ db_name | lower }}.ora"
+      register: pfile_content
+      changed_when: false
+
+    - name: Display pfile summary
+      ansible.builtin.debug:
+        msg: "Server {{ inventory_hostname }}: {{ pfile_content.stdout_lines }}"

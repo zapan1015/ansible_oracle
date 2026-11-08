@@ -1,0 +1,9 @@
+- name: Check database status
+  ansible.builtin.shell: |
+    . {{ oracle_home }}/bin/oraenv <<< {{ db_name }}
+    sqlplus -s / as sysdba <<EOF
+    set heading off feedback off
+    select open_mode from v\$database;
+    EOF
+  register: db_status
+  changed_when: false

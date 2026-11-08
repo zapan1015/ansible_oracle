@@ -1,0 +1,38 @@
+---
+# tasks for oracle_packages role
+
+- name: 1. Install Oracle prerequisite packages
+  ansible.builtin.dnf:
+    name: "{{ oracle_packages }}"
+    state: present
+    update_cache: yes
+  register: dnf_install_result
+  notify: Log package update event
+
+- name: 2. Update specific Oracle packages if defined
+  ansible.builtin.dnf:
+    name: "{{ oracle_packages_update }}"
+    state: latest
+  when: (oracle_packages_update is defined) and (oracle_packages_update | length > 0)
+
+- name: 3. Verify installed Oracle prerequisite packages via rpm query
+  ansible.builtin.shell: >
+    rpm -qa | egrep 'binutils|libaio|ksh|net-tools|sysstat' | sort
+  register: pkg_check
+  changed_when: false
+
+- name: 4. Display installed packages for this host
+  ansible.builtin.debug:
+    msg: "Host: {{ inventory_hostname }} (Env: {{ env_name | default('unknown') }}) - Installed: {{ pkg_check.stdout_lines }}"
+
+- name: 5. Generate Oracle package audit report
+  ansible.builtin.shell: >
+    rpm -qa | sort > {{ report_output_path }}
+  register: report_gen
+  changed_when: false
+
+- name: 6. Fetch package audit report to control node
+  ansible.builtin.fetch:
+    src: "{{ report_output_path }}"
+    dest: "{{ playbook_dir }}/../reports/{{ inventory_hostname }}_packages.txt"
+    flat: yes

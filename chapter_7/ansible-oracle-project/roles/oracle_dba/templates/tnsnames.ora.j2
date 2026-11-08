@@ -1,0 +1,21 @@
+# Master Project TNSNAMES Configuration (Role: oracle_dba)
+# Environment: {{ env_name | default('dev') | upper }}
+
+{{ db_name }} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ ansible_hostname }})(PORT = {{ listener_port }}))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = {{ db_name }})
+    )
+  )
+
+{{ db_container }}_PDB =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ ansible_hostname }})(PORT = {{ listener_port }}))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = {{ db_container }})
+    )
+  )
+

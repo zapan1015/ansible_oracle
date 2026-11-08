@@ -1,0 +1,21 @@
+---
+- name: Practice Jinja2 troubleshooting and defensive template patterns
+  hosts: dbservers
+  gather_facts: no
+  vars:
+    # 정의되지 않은 변수 기본값 처리 및 mandatory 검증
+    optional_backup_path: ""
+  tasks:
+    - name: 1. Safe rendering with default filter
+      ansible.builtin.debug:
+        msg: >-
+          Backup Path: {{ custom_backup_dir | default('/backup/default_stage') }} |
+          ADR Status: {{ enable_adr | default(false) }}
+
+    - name: 2. Defensive variable presence validation
+      ansible.builtin.assert:
+        that:
+          - listener_port is defined
+          - db_name is defined
+        fail_msg: "Required Oracle database variables are missing!"
+        success_msg: "All mandatory variables for {{ inventory_hostname }} are defined."

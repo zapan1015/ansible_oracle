@@ -1,0 +1,10 @@
+db_name: PROD
+db_unique_name: PROD_DG
+oracle_home: /u01/app/oracle/prod
+listener_port: 1521
+oracle_sid: PROD
+backup_dir: /backup/prod
+asm_diskgroup: DATA
+env: prod
+is_rac: true
+data_guard: true
