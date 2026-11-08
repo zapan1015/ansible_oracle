@@ -9,6 +9,28 @@
 
 ---
 
+## Chapter 0. 오라클 DBA를 위한 앤서블 기초 아키텍처와 사전 실습 환경 구축
+
+### 1. 공식 문서 및 기술 레퍼런스 (Official Documentation)
+
+| 분류 | 문서 제목 | 참조 URL / 출처 | 활용 목적 |
+| :--- | :--- | :--- | :--- |
+| **Ansible 공식 문서** | *Ansible Documentation – Getting started with Ansible & Agentless Architecture* | https://docs.ansible.com/ansible/latest/getting_started/index.html | 제어 노드(Control Node)와 관리 노드(Managed Node)의 에이전트리스(Agentless) 통신 구조 및 멱등성(Idempotency) 개념 정의 |
+| **Ansible 설치 가이드** | *Installing Ansible on RHEL / CentOS / Oracle Linux* | https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html | Oracle Linux 8/9 환경에서 EPEL 저장소(`oracle-epel-release-el8`) 및 Python `pip`(`ansible-core`, `oracledb`, `jmespath`) 기반 제어 노드 설치 검증 |
+| **Ansible 설정 레퍼런스** | *Configuring Ansible (`ansible.cfg` hierarchy & SSH connection settings)* | https://docs.ansible.com/ansible/latest/reference_appendices/config.html | 프로젝트 수준 `./ansible.cfg` 탐색 우선순위, `forks`, `stdout_callback = yaml`, `ControlPersist`, `pipelining` 설정 검증 |
+| **Ansible 연결 가이드** | *Connection methods and details (SSH Keygen, `ssh-copy-id`, Troubleshooting)* | https://docs.ansible.com/ansible/latest/ inventory_guide/connection_details.html | 무암호 자동화를 위한 4096비트 RSA 공개키 배포, `.ssh`(`0700`)/`id_rsa`(`0600`) 권한 규격 및 접속 오류 해결 |
+
+### 2. 프로젝트 실습 파일 및 소스 매핑 (`docs/ansible_oracle_dba_manuscript.md` & `chapter_1/`)
+
+| 구분 | 워크스페이스 파일 경로 | 설명 및 역할 |
+| :--- | :--- | :--- |
+| **원본 초안 문서** | [`docs/ansible_oracle_dba_manuscript.md`](file:///c:/Users/zapan/Documents/ansible_oracle/docs/ansible_oracle_dba_manuscript.md) | Chapter 0 원본 강의 교안 (앤서블 기초 아키텍처, `ansible.cfg`, SSH 키 인증, 인벤토리·애드혹·첫 플레이북 기초 및 마스터 프로젝트) |
+| **제어 노드 도커 명세** | [`chapter_1/docker/Dockerfile.control`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_1/docker/Dockerfile.control) | Oracle Linux 8 기반 Python 3.9, `ansible-core`, `oracledb`, `jmespath` 설치 및 4096비트 SSH 키 자동 생성 명세 |
+| **관리 노드 도커 명세** | [`chapter_1/docker/Dockerfile.oracle_node`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_1/docker/Dockerfile.oracle_node), [`chapter_1/docker/entrypoint-node.sh`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_1/docker/entrypoint-node.sh) | `oracle-database-preinstall-19c` 설치, `oracle`/`grid` 계정 구성 및 공유 볼륨 SSH 공개키 자동 등록 스크립트 |
+| **기초 프로젝트 설정** | [`chapter_1/ansible-oracle-dba/ansible.cfg`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_1/ansible-oracle-dba/ansible.cfg), [`inventory/hosts`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_1/ansible-oracle-dba/inventory/hosts), [`playbooks/02_setup_oracle_env.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_1/ansible-oracle-dba/playbooks/02_setup_oracle_env.yml) | 마스터 프로젝트 실습에 사용되는 프로젝트 수준 `ansible.cfg`, 3노드 인벤토리 및 `/u01/app/oracle` 기초 환경 프로비저닝 플레이북 |
+
+---
+
 ## Chapter 1. 앤서블 인벤토리 설계: 오라클 19c DBA 환경을 위한 서버 조직화
 
 ### 1. 공식 기술 문서 (Official Documentation)
@@ -236,3 +258,112 @@ Chapter 3 본문 집필에 반영된 프로젝트 내부 원본 문서 및 실�
 | **하위 태스크 1~5** | [`tasks/check_db_status.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/tasks/check_db_status.yml), [`start_db.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/tasks/start_db.yml), [`check_tablespace.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/tasks/check_tablespace.yml), [`alert_tablespace.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/tasks/alert_tablespace.yml), [`apply_patch.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/tasks/apply_patch.yml) | DB 오픈 모드 확인, 조건부 기동(`\| trim != 'READ WRITE'`), 테이블스페이스 조회, 85% 초과 조건부 알림(`regex_search`), 조건부 패치 압축 해제 |
 | **실습 2~8 플레이북** | [`01_basic_conditions.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/playbooks/01_basic_conditions.yml), [`02_facts_and_vars.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/playbooks/02_facts_and_vars.yml), [`03_listener_conditional.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/playbooks/03_listener_conditional.yml), [`04_loop_with_conditions.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/playbooks/04_loop_with_conditions.yml), [`05_troubleshooting.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/ansible-oracle-project/playbooks/05_troubleshooting.yml) | 기본 `when` 문법, 팩트 기반 조건, 2단계 리스너 조건부 기동, `stat` 반복 조건, 방어적 조건문(`is defined`, `default`) 실습 |
 | **실습 가이드** | [`chapter_6/README.md`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_6/README.md) | `chapter_6` 컨테이너 환경 기동 및 단계별 조건문 실습 가이드 |
+
+
+---
+
+## Chapter 7. 오라클 DBA를 위한 앤서블 역할(Roles): 엔터프라이즈 자동화 모듈화와 재사용 아키텍처
+
+### 1. 공식 문서 및 기술 레퍼런스 (Official Documentation)
+
+| 분류 | 문서 제목 | 참조 URL / 출처 | 활용 목적 |
+| :--- | :--- | :--- | :--- |
+| **Ansible 공식 문서** | *Roles — Ansible Playbook Guide* | https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html | 역할 표준 디렉터리 구조(`tasks`, `handlers`, `defaults`, `vars`, `templates`, `files`, `meta`), 역할 호출 방식 및 의존성(`dependencies`) 표준 참조 |
+| **Ansible CLI 레퍼런스** | *ansible-galaxy CLI documentation* | https://docs.ansible.com/ansible/latest/cli/ansible-galaxy.html | `ansible-galaxy init roles/<role_name>` 스켈레톤 생성 및 커뮤니티 역할 관리 명령어 참조 |
+| **Ansible 공식 문서** | *Understanding Variable Precedence (Role defaults vs Role vars)* | https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#understanding-variable-precedence | `roles/<role>/defaults/main.yml`과 `group_vars/*.yml`, `roles/<role>/vars/main.yml` 간의 우선순위 설계 검증 |
+| **Oracle 19c 공식 문서** | *Oracle Database Net Services Reference 19c* | https://docs.oracle.com/en/database/oracle/oracle-database/19/netrf/index.html | `listener.ora`, `tnsnames.ora`, `sqlnet.ora`(`SQLNET.EXPIRE_TIME`, `ADR_BASE`) 파라미터 규격 및 진자2 템플릿 매핑 |
+
+### 2. 프로젝트 실습 파일 및 소스 매핑 (`chapter_7/`)
+
+| 구분 | 워크스페이스 파일 경로 | 설명 및 역할 |
+| :--- | :--- | :--- |
+| **원본 초안 문서** | [`docs/Day78_Ansible_Roles_KR.md`](file:///c:/Users/zapan/Documents/ansible_oracle/docs/Day78_Ansible_Roles_KR.md) | Chapter 7 (Day 78) 원본 강의 교안 및 실습 검증 노트 |
+| **컨테이너 오케스트레이션** | [`chapter_7/docker-compose.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/docker-compose.yml) | 제어 노드(`ansible-control-ch7`, `192.168.7.10`) 및 환경별 오라클 노드 3대(`devdb`, `testdb`, `proddb`) 네트워크(`192.168.7.0/24`) 정의 |
+| **앤서블 환경 설정** | [`chapter_7/ansible-oracle-project/ansible.cfg`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/ansible.cfg) | 기본 인벤토리(`./inventory/hosts.ini`), `roles_path = ./roles`, 권한 상승(`become_user = oracle`) 설정 |
+| **인벤토리 및 그룹 변수** | [`inventory/hosts.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/inventory/hosts.ini), [`group_vars/all.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/group_vars/all.yml), [`dev.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/group_vars/dev.yml), [`test.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/group_vars/test.yml), [`prod.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/group_vars/prod.yml) | `dev`, `test`, `prod` 그룹을 묶는 `[dbservers:children]` 계층과 환경별 `db_name`, `listener_port`, `sga_target` 변수 정의 |
+| **기본 역할 (`oracle_db`)** | [`roles/oracle_db/tasks/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_db/tasks/main.yml), [`handlers/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_db/handlers/main.yml), [`defaults/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_db/defaults/main.yml), [`vars/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_db/vars/main.yml), [`templates/init.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_db/templates/init.ora.j2), [`listener.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_db/templates/listener.ora.j2) | 역할의 표준 디렉터리 구조, 정적 파일 배포(`files/`), 동적 템플릿 배포(`templates/`), 핸들러 연동 실습용 기본 역할 |
+| **선행 의존 역할 체인** | [`roles/oracle_prereq`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_prereq), [`roles/oracle_user`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_user), [`roles/oracle_env`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_env) | `oracle_dba` 실행 전 자동 호출되는 커널 파라미터, OS 계정 보안 한도, `.oracle_env_profile` 구성 역할 |
+| **마스터 역할 (`oracle_dba`)** | [`roles/oracle_dba/meta/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_dba/meta/main.yml), [`tasks/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_dba/tasks/main.yml), [`templates/tnsnames.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_dba/templates/tnsnames.ora.j2), [`sqlnet.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/roles/oracle_dba/templates/sqlnet.ora.j2) | 의존 역할 3개 연계, 오라클 넷 3종 템플릿 배포, 테이블스페이스(`APP_DATA`)·계정(`app_user`)·초기 SQL 멱등 프로비저닝 마스터 역할 |
+| **단계별 실습 플레이북** | [`01_role_structure_and_tasks.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/playbooks/01_role_structure_and_tasks.yml) ~ [`06_validation_and_audit.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/ansible-oracle-project/playbooks/06_validation_and_audit.yml) | 실습 2~8을 수행하는 6종 검증 플레이북 및 `assert` 기반 컴플라이언스 감사 스크립트 |
+| **실습 가이드** | [`chapter_7/README.md`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_7/README.md) | `chapter_7` 컨테이너 기동 및 역할 실습 시나리오 안내 |
+
+
+---
+
+## Chapter 8. 오라클 DBA를 위한 진자2(Jinja2) 템플릿 실무: 동적 설정 파일 자동 생성
+
+### 1. 공식 문서 및 기술 레퍼런스 (Official Documentation)
+
+| 분류 | 문서 제목 | 참조 URL / 출처 | 활용 목적 |
+| :--- | :--- | :--- | :--- |
+| **Ansible Builtin 모듈** | *ansible.builtin.template module – Template a file out to a target host* | https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html | `.j2` 템플릿 파일 렌더링, 파일 권한(`mode`), 소유자(`owner`/`group`) 지정 및 체크섬 비교 기반 멱등성 배포 |
+| **Jinja2 공식 문서** | *Jinja2 Template Designer Documentation (Expressions, Statements, Loop Variables)* | https://jinja.palletsprojects.com/en/3.1.x/templates/ | `{{ ... }}`, `{% if/elif/else/endif %}`, `{% for ... in ... %}`, `loop.index`, `loop.first`, `loop.last` 및 `{# ... #}` 주석 문법 표준 참조 |
+| **Ansible 공식 문서** | *Using filters to manipulate data* | https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html | `upper`, `lower`, `default`, `length` 등 템플릿 데이터 변환 필터 검증 |
+| **Oracle 19c 공식 문서** | *Oracle Database Net Services Reference 19c & Database Reference (PFILE)* | https://docs.oracle.com/en/database/oracle/oracle-database/19/netrf/index.html | `listener.ora`(`ADR_BASE_LISTENER`, `LOG_LEVEL_LISTENER`), `tnsnames.ora`, `sqlnet.ora`(`SQLNET.INBOUND_CONNECT_TIMEOUT`), `init<SID>.ora` 문법 검증 |
+
+### 2. 프로젝트 실습 파일 및 소스 매핑 (`chapter_8/`)
+
+| 구분 | 워크스페이스 파일 경로 | 설명 및 역할 |
+| :--- | :--- | :--- |
+| **원본 초안 문서** | [`docs/79_jinja2_.md`](file:///c:/Users/zapan/Documents/ansible_oracle/docs/79_jinja2_.md) | Chapter 8 (Day 79) 원본 강의 교안 및 실습 시나리오 노트 |
+| **컨테이너 오케스트레이션** | [`chapter_8/docker-compose.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/docker-compose.yml) | 제어 노드(`ansible-control-ch8`, `192.168.8.10`) 및 환경별 오라클 노드 3대(`devdb`, `testdb`, `proddb`) 네트워크(`192.168.8.0/24`) 정의 |
+| **앤서블 환경 설정** | [`chapter_8/ansible-oracle-project/ansible.cfg`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/ansible.cfg) | 기본 인벤토리(`inventory/hosts.ini`), 원격 계정(`oracle`), 파이썬 인터프리터(`auto_silent`) 설정 |
+| **인벤토리 및 그룹 변수** | [`inventory/hosts.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/inventory/hosts.ini), [`inventory/group_vars/all.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/inventory/group_vars/all.yml), [`dev.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/inventory/group_vars/dev.yml), [`test.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/inventory/group_vars/test.yml), [`prod.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/inventory/group_vars/prod.yml) | 공통 데이터베이스 목록(`all_databases`) 및 환경별(`oracle_env`) 포트, ADR 여부, 로그 레벨, SGA/PGA 크기 정의 |
+| **진자2 템플릿 4종** | [`templates/listener.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/templates/listener.ora.j2), [`tnsnames.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/templates/tnsnames.ora.j2), [`sqlnet.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/templates/sqlnet.ora.j2), [`pfile.ora.j2`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/templates/pfile.ora.j2) | 조건문(`if/elif/else`), 반복문(`for` 및 `loop.index`/`loop.first`), 대소문자 필터(`upper`/`lower`)가 적용된 오라클 핵심 템플릿 4종 |
+| **단계별 실습 플레이북** | [`01_basic_template.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/playbooks/01_basic_template.yml) ~ [`06_troubleshooting.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/ansible-oracle-project/playbooks/06_troubleshooting.yml) | 기본 렌더링, 조건 분기 검증, 반복문 TNS 생성, PFILE 생성, 오라클 넷 3종 일괄 배포(`05_master_oracle_net.yml`), 방어적 검증 실습 |
+| **실습 가이드** | [`chapter_8/README.md`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_8/README.md) | `chapter_8` 컨테이너 환경 기동 및 8단계 진자2 템플릿 실습 안내 |
+
+
+---
+
+## Chapter 9. 오라클 DBA를 위한 앤서블 볼트(Ansible Vault) 실무: 데이터베이스 비밀번호와 자격 증명 보안 아키텍처
+
+### 1. 공식 문서 및 기술 레퍼런스 (Official Documentation)
+
+| 분류 | 문서 제목 | 참조 URL / 출처 | 활용 목적 |
+| :--- | :--- | :--- | :--- |
+| **Ansible 공식 문서** | *Protecting sensitive data with Ansible Vault* | https://docs.ansible.com/ansible/latest/vault_guide/index.html | AES256 대칭키 기반 파일 암호화(`$ANSIBLE_VAULT;1.1;AES256`) 및 인라인 문자열 암호화(`!vault \|`) 아키텍처 검증 |
+| **Ansible 공식 문서** | *Managing Vault passwords and Vault IDs* | https://docs.ansible.com/ansible/latest/vault_guide/vault_managing_passwords.html | 다중 볼트 ID(`--vault-id dev@...`, `--vault-id prod@...`) 기반 `$ANSIBLE_VAULT;1.2;AES256;<id>` 헤더 식별 및 직무 분리(SoD) 설계 |
+| **Ansible CLI 레퍼런스** | *ansible-vault command line utility* | https://docs.ansible.com/ansible/latest/cli/ansible-vault.html | `create`, `encrypt`, `encrypt_string`, `view`, `edit`, `rekey`, `decrypt` 7대 핵심 서브 커맨드 및 옵션 표준 참조 |
+| **Ansible Playbook 가이드** | *Protecting sensitive data with no_log* | https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_advanced_syntax.html#air-tight-security-with-no-log | 런타임 중 표준 출력, 시스템 로그, CI/CD 콘솔에서 복호화된 비밀번호 노출을 차단하는 `no_log: true` 속성 명세 |
+
+### 2. 프로젝트 실습 파일 및 소스 매핑 (`chapter_9/`)
+
+| 구분 | 워크스페이스 파일 경로 | 설명 및 역할 |
+| :--- | :--- | :--- |
+| **원본 초안 문서** | [`docs/80_vault.md`](file:///c:/Users/zapan/Documents/ansible_oracle/docs/80_vault.md) | Chapter 9 (Day 80) 원본 강의 교안 및 볼트 보안 실습 시나리오 노트 |
+| **컨테이너 오케스트레이션** | [`chapter_9/docker-compose.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/docker-compose.yml) | 제어 노드(`ansible-control-ch9`, `192.168.9.10`) 및 환경별 오라클 노드 2대(`devdb`, `proddb`) 네트워크(`192.168.9.0/24`) 정의 |
+| **앤서블 환경 설정** | [`chapter_9/ansible-oracle-project/ansible.cfg`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/ansible.cfg) | 기본 인벤토리(`inventory/hosts.ini`), 원격 계정(`oracle`), 기본 볼트 암호 파일(`vault_password_file = vault/.vault_pass`) 지정 |
+| **인벤토리 구성** | [`chapter_9/ansible-oracle-project/inventory/hosts.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/inventory/hosts.ini) | `[dev]`(`devdb`, `env=dev`), `[prod]`(`proddb`, `env=prod`) 및 `[oracle_dbs:children]` 그룹 계층 정의 |
+| **볼트 키 파일 (`0600`)** | [`vault/.vault_pass`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/vault/.vault_pass), [`vault/.vault_dev_pass`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/vault/.vault_dev_pass), [`vault/.vault_prod_pass`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/vault/.vault_prod_pass) | 공통 볼트 암호 파일 및 개발(`dev`)·운영(`prod`) 전용 볼트 ID 암호 파일 (소유자 전용 읽기 권한 `0600` 강제) |
+| **암호화 변수 파일** | [`vars/vault_common.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/vars/vault_common.yml), [`vars/dev_vault.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/vars/dev_vault.yml), [`vars/prod_vault.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/vars/prod_vault.yml) | 버전 1.1 공통 암호화 파일(`vault_common.yml`) 및 버전 1.2 볼트 ID 레이블(`dev`, `prod`)이 태깅된 환경별 암호화 변수 파일 |
+| **단계별 실습 플레이북** | [`01_vault_basic.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/playbooks/01_vault_basic.yml) ~ [`05_troubleshooting.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/ansible-oracle-project/playbooks/05_troubleshooting.yml) | 기본 볼트 복호화 및 `no_log: true` 마스킹, 다중 볼트 ID, 인라인 문자열 암호화(`!vault \|`), 무중단 DBA 점검 마스터 프로젝트(`04_master_vault_dba.yml`), 키 파일 권한(`0600`) 감사 |
+| **시뮬레이션 바이너리** | [`chapter_9/docker/mocks/sqlplus`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/docker/mocks/sqlplus), [`chapter_9/docker/mocks/lsnrctl`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/docker/mocks/lsnrctl) | 자격 증명 검증, `V$DATABASE` 오픈 모드 조회, 테이블스페이스 사용량 리포트, 리스너 상태 점검을 에뮬레이션하는 컨테이너 내장 스크립트 |
+| **실습 가이드** | [`chapter_9/README.md`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_9/README.md) | `chapter_9` 컨테이너 기동 및 앤서블 볼트 7단계 실습 시나리오 안내 |
+
+
+---
+
+## Chapter 10. 오라클 서버 패키지 관리와 운영 자동화 완성: DNF 모듈·Role·감사 리포팅 파이프라인
+
+### 1. 공식 문서 및 기술 레퍼런스 (Official Documentation)
+
+| 분류 | 문서 제목 | 참조 URL / 출처 | 활용 목적 |
+| :--- | :--- | :--- | :--- |
+| **Ansible Builtin 모듈** | *ansible.builtin.dnf module – Manages packages with the dnf package manager* | https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html | Oracle Linux 8/9 환경에서 `state: present`, `state: latest`, `update_cache`, 리스트 일괄 전달 및 멱등성 패키지 설치 검증 |
+| **Ansible Builtin 모듈** | *ansible.builtin.fetch module – Fetch files from remote nodes* | https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fetch_module.html | 원격 오라클 서버에서 생성한 `rpm -qa` 감사 보고서를 `flat: yes` 옵션으로 제어 노드의 `reports/` 디렉터리에 중앙 수집 |
+| **Ansible Playbook 가이드** | *Retrying a task until a condition is met (`retries`, `delay`, `until`)* | https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#retrying-a-task-until-a-condition-is-met | 패키지 저장소 네트워크 일시 지연에 대비한 재시도 정책(`retries: 3`, `delay: 5`, `until: retry_result is succeeded`) 설계 |
+| **Oracle 19c 공식 문서** | *Oracle Database Installation Guide 19c for Linux – Operating System Checklist* | https://docs.oracle.com/en/database/oracle/oracle-database/19/ladbi/operating-system-checklist-for-oracle-database-installation-on-linux.html | Oracle Linux 8 환경의 필수 RPM 패키지(`binutils`, `libaio`, `ksh`, `sysstat`, `oracle-database-preinstall-19c`) 요구사항 대조 |
+
+### 2. 프로젝트 실습 파일 및 소스 매핑 (`chapter_10/`)
+
+| 구분 | 워크스페이스 파일 경로 | 설명 및 역할 |
+| :--- | :--- | :--- |
+| **원본 초안 문서** | [`docs/81_final_editorial_manuscript.md`](file:///c:/Users/zapan/Documents/ansible_oracle/docs/81_final_editorial_manuscript.md) | Chapter 10 (Day 81) 원본 강의 교안 및 패키지 프로비저닝 실습 시나리오 노트 |
+| **컨테이너 오케스트레이션** | [`chapter_10/docker-compose.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/docker-compose.yml) | 제어 노드(`ansible-control-ch10`, `192.168.10.10`) 및 Oracle Linux 8 관리 대상 노드 3대(`devdb`, `testdb`, `proddb`) 네트워크(`192.168.10.0/24`) 정의 |
+| **앤서블 환경 설정** | [`chapter_10/ansible-oracle-project/ansible.cfg`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/ansible.cfg) | 기본 인벤토리(`./inventory/hosts.ini`), `roles_path = ./roles`, 루트 권한 상승(`become = True`, `become_user = root`) 설정 |
+| **인벤토리 및 그룹 변수** | [`inventory/hosts.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/hosts.ini), [`dev.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/dev.ini), [`test.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/test.ini), [`prod.ini`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/prod.ini), [`inventory/group_vars/all.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/group_vars/all.yml), [`dev.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/group_vars/dev.yml), [`test.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/group_vars/test.yml), [`prod.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/inventory/group_vars/prod.yml) | 통합/개별 인벤토리 구성 및 환경별(`dev`/`test`/`prod`) 차등 패키지 목록(`oracle_packages`, `oracle_packages_update`) 정의 |
+| **패키지 관리 역할 (`oracle_packages`)** | [`roles/oracle_packages/defaults/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/roles/oracle_packages/defaults/main.yml), [`tasks/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/roles/oracle_packages/tasks/main.yml), [`handlers/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/roles/oracle_packages/handlers/main.yml), [`meta/main.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/roles/oracle_packages/meta/main.yml) | DNF 패키지 설치·최신화, `rpm -qa` 검증, 감사 보고서 생성 및 `fetch` 수집을 캡슐화한 표준 Role |
+| **단계별 실습 플레이북** | [`01_single_package.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/playbooks/01_single_package.yml) ~ [`06_validation_and_audit.yml`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/playbooks/06_validation_and_audit.yml) | 단일 설치 멱등성, `loop` 다중 설치, `state: latest` 및 버전 쿼리, 환경별 차등 배포, 마스터 Role 실행, `retries`/`assert`/`delegate_to` 감사 |
+| **수집된 감사 보고서** | [`reports/devdb_packages.txt`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/reports/devdb_packages.txt), [`testdb_packages.txt`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/reports/testdb_packages.txt), [`proddb_packages.txt`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/ansible-oracle-project/reports/proddb_packages.txt) | `fetch` 모듈을 통해 각 오라클 리눅스 8 노드로부터 제어 노드에 중앙 수집된 전체 RPM 패키지 감사 보고서 |
+| **실습 가이드** | [`chapter_10/README.md`](file:///c:/Users/zapan/Documents/ansible_oracle/chapter_10/README.md) | `chapter_10` 컨테이너 기동 및 패키지 프로비저닝 7단계 실습 시나리오 안내 |
