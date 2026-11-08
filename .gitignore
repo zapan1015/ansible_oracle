@@ -65,3 +65,8 @@ ehthumbs.db
 .vscode/
 *.swp
 *~
+
+# Documentation Manuscripts
+docs/
+/docs/
+
